@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "models", "llm_context"],
+  "properties": {
+    "schema_version": {"const": "1.16"},
+    "models": {
+      "type": "object",
+      "required": ["embeddings", "final_report", "optional_evidence_review"],
+      "properties": {
+        "embeddings": {
+          "type": "object",
+          "required": ["provider", "model", "role", "mandatory"],
+          "properties": {
+            "provider": {"const": "ollama"},
+            "model": {"const": "bge-large"},
+            "role": {"const": "semantic_embeddings"},
+            "mandatory": {"const": true}
+          },
+          "additionalProperties": false
+        },
+        "final_report": {
+          "type": "object",
+          "required": ["provider", "model", "role", "mandatory_attempt", "temperature", "target_output_tokens", "max_output_tokens", "num_ctx", "maximum_serialized_response_characters", "timeout_seconds", "soft_timeout_warning_seconds", "max_calls_per_company", "max_retries", "retry_on_timeout", "prewarm_model", "keep_alive", "prompt_bundle_id", "require_external_prompt_loading", "prohibit_hardcoded_prompt_override", "persist_effective_prompt_manifest", "ownership_validation"],
+          "properties": {
+            "provider": {"const": "ollama"},
+            "model": {"const": "gemma2:9b"},
+            "role": {"const": "company_summary_and_report_narrative"},
+            "mandatory_attempt": {"const": true},
+            "temperature": {"const": 0.2},
+            "target_output_tokens": {"const": 700},
+            "max_output_tokens": {"const": 1800},
+            "num_ctx": {"const": 8192},
+            "maximum_serialized_response_characters": {"const": 8000},
+            "timeout_seconds": {"const": 480},
+            "soft_timeout_warning_seconds": {"const": 360},
+            "max_calls_per_company": {"const": 1},
+            "max_retries": {"const": 0},
+            "retry_on_timeout": {"const": false},
+            "prewarm_model": {"type": "boolean"},
+            "keep_alive": {"const": "30m"},
+            "prompt_bundle_id": {"const": "company_summary_v3.0"},
+            "require_external_prompt_loading": {"const": true},
+            "prohibit_hardcoded_prompt_override": {"const": true},
+            "persist_effective_prompt_manifest": {"const": true},
+            "ownership_validation": {
+              "type": "object",
+              "required": ["enabled", "required", "first_mention_attribution_window_characters"],
+              "properties": {
+                "enabled": {"const": true},
+                "required": {"const": true},
+                "first_mention_attribution_window_characters": {"type": "integer", "minimum": 1}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "optional_evidence_review": {
+          "type": "object",
+          "required": ["enabled", "provider", "model", "role", "batch_size", "max_batches_per_company"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "provider": {"const": "ollama"},
+            "model": {"const": "gemma2:9b"},
+            "role": {"const": "ambiguous_evidence_review"},
+            "batch_size": {"type": "integer", "minimum": 1},
+            "max_batches_per_company": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "llm_context": {
+      "type": "object",
+      "required": ["native_context_window_tokens", "reserved_output_tokens", "context_safety_margin_tokens", "maximum_complete_prompt_tokens", "conservative_characters_per_token", "maximum_input_characters", "maximum_estimated_input_tokens", "minimum_relevant_company_evidence_sources", "target_relevant_company_evidence_sources", "maximum_relevant_evidence_sources", "maximum_evidence_excerpt_characters_per_source", "maximum_portfolio_items", "maximum_applicability_mappings_per_item", "maximum_dspace_chunks_per_item", "maximum_limitations", "maximum_recommended_actions"],
+      "additionalProperties": {"type": "integer", "minimum": 1}
+    }
+  },
+  "additionalProperties": false
+}

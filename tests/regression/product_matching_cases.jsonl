@@ -1,0 +1,2 @@
+{"case_id":"M1","normalized_company_signals":["hvdc_converter_system"],"expected_dspace_portfolio_eligibility":["electrical_power_systems_simulation_package_epss"],"expected_hard_rule_outcome":true,"synthetic":true}
+

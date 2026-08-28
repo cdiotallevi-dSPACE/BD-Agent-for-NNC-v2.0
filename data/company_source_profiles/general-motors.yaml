@@ -1,0 +1,12 @@
+company_name: General Motors
+industry: automotive
+company_aliases:
+  - General Motors Company
+  - GMC
+  - GM
+validated_patent_assignees:
+  - assignee_name: GM Global Technology Operations LLC
+    attributed_company_id: general_motors
+    validation_status: established
+    validation_basis: approved_corporate_patent_holding_entity
+seed_urls: []

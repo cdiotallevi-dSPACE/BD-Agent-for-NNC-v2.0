@@ -1,0 +1,22 @@
+schema_version: "2.0"
+dspace_portfolio_items:
+  - dspace_portfolio_item_id: neural_net_coder
+    entity_scope: dspace_portfolio
+    name: Neural Net Coder
+    commercial_name: Neural Net Coder
+    owner: dSPACE GmbH
+    supplier: dSPACE GmbH
+    offering_type: product
+    aliases: [Neural Net Coder, NNC, dSPACE Neural Net Coder]
+    capability_ids:
+      - onnx_input_workflow
+      - deterministic_cpp_code_generation
+      - static_memory_behavior
+      - resource_forecasting
+      - post_training_optimization
+      - model_code_comparison
+      - back_to_back_verification
+      - processor_in_the_loop
+      - safety_oriented_workflow
+      - standalone_gui_cli
+      - targetlink_integration

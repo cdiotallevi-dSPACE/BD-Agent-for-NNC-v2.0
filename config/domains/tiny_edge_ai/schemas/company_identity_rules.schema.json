@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","strong_anchors","zero_strength_anchors","third_party_academic_requirements","failure_scope"],
+  "properties":{
+    "schema_version":{"type":"string"},
+    "strong_anchors":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "zero_strength_anchors":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "third_party_academic_requirements":{"type":"object","required":["require_any"],"properties":{"require_any":{"type":"array","items":{"type":"string"}}},"additionalProperties":false},
+    "failure_scope":{"const":"general_industry_background"},
+    "corporate_organizational_unit_resolution":{"type":"object","required":["recognized_unit_patterns","ambiguous_brand_requires_official_corroboration"],"properties":{"recognized_unit_patterns":{"type":"array","items":{"type":"string"}},"ambiguous_brand_requires_official_corroboration":{"type":"boolean"}},"additionalProperties":false}
+  },
+  "additionalProperties":false
+}

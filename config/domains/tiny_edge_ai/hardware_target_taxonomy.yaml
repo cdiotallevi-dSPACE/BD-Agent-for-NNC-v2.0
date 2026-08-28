@@ -1,0 +1,8 @@
+config_id: tiny_edge_ai_hardware_target_taxonomy
+config_version: 1.0.0
+schema_version: 1.0.0
+status: active
+target_classes:
+  constrained: [microcontroller, MCU, ECU, Cortex-M, Cortex-R, bare metal, RTOS, low-power SoC]
+  conditional: [embedded MPU, edge processor, DSP-assisted MCU, NPU-assisted MCU]
+  non_constrained: [cloud GPU, server inference, datacenter inference, edge gateway]

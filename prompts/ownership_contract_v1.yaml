@@ -1,0 +1,15 @@
+version: "1.0.0"
+target_company:
+  role: prospective_user_of_applicable_dspace_offerings
+portfolio_supplier:
+  name: dSPACE GmbH
+  role: owner_and_supplier_of_all_dspace_portfolio_items
+relationship: dSPACE offerings are applicable to target-company engineering needs
+prohibited_relationship: target company owns or supplies a dSPACE offering
+required_first_mention_attribution: dSPACE
+protected_products: [Neural Net Coder, TargetLink]
+unsupported_claims:
+  - target company owns Neural Net Coder
+  - target company already uses Neural Net Coder
+  - Neural Net Coder guarantees target or operator compatibility
+  - Neural Net Coder certifies the application

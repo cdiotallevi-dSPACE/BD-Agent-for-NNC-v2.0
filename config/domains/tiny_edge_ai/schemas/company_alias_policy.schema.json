@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","company_alias_classes","policies","zero_strength_locations"],
+  "properties":{
+    "schema_version":{"type":"string"},
+    "company_alias_classes":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "policies":{"type":"object","additionalProperties":{"type":"object","required":["query_allowed","query_priority","attribution_anchor","independent_attribution_allowed"],"additionalProperties":true}},
+    "zero_strength_locations":{"type":"array","items":{"type":"string"},"uniqueItems":true}
+  },
+  "additionalProperties":false
+}

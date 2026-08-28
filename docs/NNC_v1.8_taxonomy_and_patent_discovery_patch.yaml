@@ -1,0 +1,229 @@
+patch_version: 1.8.0
+domain_id: tiny_edge_ai
+purpose: Replace web-search-ranking-dependent patent discovery with patent-native validated-assignee enumeration, local
+  metadata-corpus ranking, complete taxonomy term coverage, quality-based provider fallback, and family-specific full-text
+  retrieval.
+architecture:
+  primary_patent_discovery: patent_native_assignee_corpus
+  supplemental_patent_discovery:
+  - general_web_site_restricted_queries
+  - specialist_search_provider_queries
+  pipeline:
+  - validate company patent assignees
+  - enumerate patent metadata from patent-native sources
+  - validate and normalize patent records
+  - deduplicate patent families and build local assignee corpus
+  - apply all required use-case synonyms locally
+  - rank metadata deterministically
+  - reserve full-text slots by use-case family
+  - retrieve complete selected patents
+  - expand through classifications, family, citations, and related applications
+  - attribute, classify, and publish relevant evidence
+patent_native_sources:
+  google_patents:
+    required_capabilities:
+    - assignee_enumeration
+    - pagination_or_bounded_result_expansion
+    - patent_metadata
+    - full_text_location
+  justia_patents:
+    required_capabilities:
+    - assignee_pages
+    - pagination
+    - patent_metadata
+  uspto_patent_data:
+    optional: true
+    required_capabilities:
+    - assignee_search
+    - structured_patent_metadata
+  epo_ops:
+    optional: true
+    required_capabilities:
+    - bibliographic_search
+    - patent_family_or_classification_data
+patent_provider_quality_contract:
+  usable_patent_record:
+    required_any_identifier:
+    - normalized_publication_number
+    - normalized_application_number
+    required:
+    - recognized_patent_document_or_record_url
+    - title_or_abstract
+    - patent_native_enumeration_or_search
+    company_relevance_required_any:
+    - validated_target_assignee
+    - candidate_assignee_for_validation
+  reject_result_types:
+  - job_advertisement
+  - career_page
+  - news_page_without_patent_identity
+  - generic_company_page
+  - ordinary_web_page_without_patent_identifier
+  unusable_reason_code: non_patent_results_from_patent_provider
+  fallback_required_when_unusable: true
+quality_based_fallback:
+  supplemental_provider_order:
+  - ddgs
+  - brave
+  - serpapi
+  - serper
+  fallback_on:
+  - provider_failed
+  - zero_results
+  - zero_usable_results
+  - non_patent_results
+  - target_assignee_absent
+  - taxonomy_signal_absent
+  - rate_limited
+  - transient_error
+  nonempty_but_irrelevant_is_success: false
+  usable_supplemental_result_requires:
+    recognized_patent_document: true
+    target_assignee_signal: true
+    application_or_taxonomy_signal: true
+patent_discovery_budget:
+  maximum_metadata_records_per_assignee: 500
+  maximum_metadata_records_per_native_source: 500
+  maximum_pages_per_assignee_source: 20
+  maximum_results_per_supplemental_web_query: 50
+  maximum_pages_per_supplemental_web_query: 5
+  maximum_full_patents_retrieved_per_company: 100
+  maximum_family_expansion_records: 200
+  maximum_citation_expansion_records: 100
+  metadata_budget_separate_from_web_retrieval_budget: true
+term_coverage_contract:
+  first_term_only_is_prohibited: true
+  every_required_core_term_applied_independently: true
+  term_execution_and_match_count_persisted: true
+  semantic_similarity_may_supplement_not_replace_exact_coverage: true
+  required_core_terms:
+    vehicle_dynamics_learned_estimation:
+    - tractive limit
+    - traction limit
+    - wheel stability
+    - wheel slip
+    - tire saturation
+    - tire-road friction
+    - regression model
+    - classification model
+    battery_virtual_measurement_and_predictive_control:
+    - predictive charging
+    - dynamic charging
+    - charging control
+    - virtual measurement
+    - calculated performance variable
+    - anode voltage
+    - anode potential
+    - electrolyte concentration
+    - lithium plating
+    - neural network learning agent
+patent_metadata_record_schema:
+  fields:
+  - source_provider
+  - source_record_id
+  - patent_url
+  - publication_number
+  - application_number
+  - title
+  - abstract
+  - current_assignees
+  - original_assignees
+  - inventors
+  - filing_date
+  - publication_date
+  - grant_date
+  - legal_status
+  - classifications.cpc
+  - classifications.ipc
+  - patent_family_id
+  - cited_patent_ids
+  - citing_patent_ids
+  - related_application_ids
+  - metadata_complete
+local_patent_rank:
+  validated_assignee_exact_match: 35
+  exact_required_use_case_term: 30
+  synonym_or_normalized_variant: 24
+  title_match: 20
+  abstract_match: 15
+  explicit_machine_learning_term: 18
+  explicit_neural_network_term: 24
+  regression_or_classification_model: 15
+  onboard_or_controller_context: 15
+  high_value_CPC_or_IPC_match: 15
+  active_or_pending_status: 5
+  same_family_duplicate_penalty: -20
+  semantic_similarity_secondary_only: true
+patent_full_text_reservations:
+  automotive_maximum_full_patents: 100
+  families:
+    battery_virtual_measurement_and_predictive_control: 20
+    vehicle_dynamics_learned_estimation: 20
+    indirect_physical_state_and_virtual_sensing: 15
+    condition_monitoring_and_prognostics: 15
+    perception_classification_and_detection: 10
+    occupant_driver_cabin_sensing: 5
+    cross_family_highest_ranked: 15
+  unused_slots_flow_to_cross_family_pool: true
+  prefer_distinct_patent_families: true
+patent_neighborhood_expansion:
+  channels:
+  - same_patent_family
+  - related_applications
+  - continuations_or_divisionals
+  - cited_patents
+  - citing_patents
+  - same_assignee_same_CPC
+  - same_assignee_neighboring_CPC
+  same_assignee_required_for_primary_company_evidence: true
+  budgets:
+    maximum_family_members_per_selected_record: 10
+    maximum_cited_records_per_selected_patent: 10
+    maximum_citing_records_per_selected_patent: 10
+    maximum_neighboring_class_records_per_family: 20
+required_run_artifacts:
+- patent_assignee_registry.json
+- patent_enumeration_manifest.json
+- patent_provider_quality.json
+- patent_metadata_corpus.jsonl
+- patent_term_coverage.json
+- patent_metadata_rankings.json
+- patent_family_expansion.json
+- patent_full_text_manifest.json
+patent_search_acceptance:
+  validated_assignee_available_or_degraded_reason_recorded: true
+  native_assignee_enumeration_attempted: true
+  metadata_pagination_state_recorded: true
+  patent_provider_quality_validated: true
+  required_term_coverage_complete_or_explained: true
+  local_metadata_ranking_completed: true
+  family_reservations_applied: true
+  selected_full_text_patents_retrieved_or_failure_recorded: true
+  ordinary_web_queries_alone_may_mark_complete: false
+regression_fixture:
+  fixture_id: GM-FN-PATENT-NATIVE-DUAL-DISCOVERY
+  scan_target_company: General Motors
+  validated_assignee: GM Global Technology Operations LLC
+  production_inputs_prohibited:
+    exact_urls:
+    - https://patents.google.com/patent/US12246700B2/en
+    - https://patents.google.com/patent/US20240302440A1/en
+    publication_numbers:
+    - US12246700B2
+    - US20240302440A1
+  expected_discovered_patents:
+    US12246700B2:
+      use_case_family: vehicle_dynamics_learned_estimation
+      relevance_class: nnc_opportunity_evidence
+      relevant_evidence: true
+      mapping_eligible: false
+    US20240302440A1:
+      use_case_family: battery_virtual_measurement_and_predictive_control
+      relevance_class: nnc_opportunity_evidence
+      relevant_evidence: true
+      mapping_eligible: false
+  synthetic_acceptance_tests:
+    irrelevant_first_page_triggers_fallback: true
+    target_on_page_three_is_found: true
+    job_ads_from_patent_provider_are_rejected: true
+    first_term_only_implementation_fails: true

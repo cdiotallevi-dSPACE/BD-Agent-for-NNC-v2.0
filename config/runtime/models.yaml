@@ -1,0 +1,58 @@
+schema_version: "1.16"
+models:
+  embeddings:
+    provider: ollama
+    model: bge-large
+    role: semantic_embeddings
+    mandatory: true
+  final_report:
+    provider: ollama
+    model: gemma2:9b
+    role: company_summary_and_report_narrative
+    mandatory_attempt: true
+    temperature: 0.2
+    target_output_tokens: 700
+    max_output_tokens: 1800
+    num_ctx: 8192
+    maximum_serialized_response_characters: 8000
+    timeout_seconds: 480
+    soft_timeout_warning_seconds: 360
+    max_calls_per_company: 1
+    max_retries: 0
+    retry_on_timeout: false
+    prewarm_model: true
+    keep_alive: 30m
+    prompt_bundle_id: company_summary_v3.0
+    require_external_prompt_loading: true
+    prohibit_hardcoded_prompt_override: true
+    persist_effective_prompt_manifest: true
+    ownership_validation:
+      enabled: true
+      required: true
+      first_mention_attribution_window_characters: 100
+  optional_evidence_review:
+    enabled: false
+    provider: ollama
+    model: gemma2:9b
+    role: ambiguous_evidence_review
+    batch_size: 4
+    max_batches_per_company: 2
+llm_context:
+  native_context_window_tokens: 8192
+  reserved_output_tokens: 1800
+  context_safety_margin_tokens: 192
+  maximum_complete_prompt_tokens: 6200
+  conservative_characters_per_token: 3
+  maximum_input_characters: 18000
+  maximum_estimated_input_tokens: 5000
+  minimum_relevant_company_evidence_sources: 3
+  target_relevant_company_evidence_sources: 6
+  maximum_relevant_evidence_sources: 10
+  maximum_ranked_use_cases: 3
+  maximum_evidence_sources_per_use_case: 2
+  maximum_evidence_excerpt_characters_per_source: 320
+  maximum_portfolio_items: 4
+  maximum_applicability_mappings_per_item: 3
+  maximum_dspace_chunks_per_item: 1
+  maximum_limitations: 8
+  maximum_recommended_actions: 8

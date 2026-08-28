@@ -1,0 +1,26 @@
+schema_version: "2.0"
+application:
+  root_directory: "C:\\Users\\ClaudioD\\Desktop\\BDA for NNC v2.0"
+company_registry:
+  workbook_path: data/Companies.xlsx
+  worksheet_name: Companies
+  headers:
+    company_id: company_id
+    company_name: company_name
+    other_names: Other_names
+    company_domain: company_domain
+    country: country
+    industry: industry
+    notes: notes
+    scan_flag: Scan Y/N
+    overall_rating: Overall Product Match
+    total_retrieved_sources: Total Retrieved Sources
+    total_retrieved_and_approved_sources: Total Retrieved and approved Sources
+    total_retrieved_pdfs: total retrieved PDFs
+    total_retrieved_and_approved_pdfs: total retrieved and approved PDFs
+    total_retrieved_patents: total retrieved Patents
+    total_retrieved_and_approved_patents: total retrieved and approved patents
+  expected_columns: {other_names: C, scan_flag: H, overall_rating: I, total_retrieved_sources: J, total_retrieved_and_approved_sources: K, total_retrieved_pdfs: L, total_retrieved_and_approved_pdfs: M, total_retrieved_patents: N, total_retrieved_and_approved_patents: O}
+  selection: {required_scan_value: Y, existing_rating_affects_selection: false, recalculate_selected_rows_each_cycle: true, selected_row_frequency: every_cycle}
+  execution: {mode: sequential, max_parallel_companies: 1, snapshot_rows_at_cycle_start: true}
+  update: {overwrite_existing_rating_on_success: true, overwrite_cycle_source_counts_on_success: true, preserve_previous_values_in_audit: true, preflight_write_access: true, reconcile_pending_before_cycle: true, create_backup: true, lock_workbook: true, atomic_replace: true, preserve_formatting: true, update_result_cells_only: true}

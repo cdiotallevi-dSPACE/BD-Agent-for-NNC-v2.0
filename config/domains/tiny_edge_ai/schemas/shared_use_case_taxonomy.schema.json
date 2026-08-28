@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["config_id", "config_version", "schema_version", "status", "generic_neural_terms", "channel_policy", "public_oem_application_vocabulary", "use_case_families"],
+  "properties": {
+    "config_id": {"const": "tiny_edge_ai_shared_use_case_taxonomy"},
+    "config_version": {"type": "string"},
+    "schema_version": {"type": "string"},
+    "status": {"const": "active"},
+    "generic_neural_terms": {
+      "type": "object",
+      "required": ["core_discovery_terms", "extended_matching_terms", "patent_cpc_codes"],
+      "properties": {
+        "core_discovery_terms": {"type": "array", "items": {"type": "string"}},
+        "extended_matching_terms": {"type": "array", "items": {"type": "string"}},
+        "patent_cpc_codes": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "channel_policy": {
+      "type": "object",
+      "required": ["fast_iteration_core_terms_per_family", "standard_core_terms_per_family", "execute_extended_terms_via_web", "apply_extended_terms_locally", "apply_context_terms_during_assessment"],
+      "additionalProperties": {"type": ["integer", "boolean"]}
+    },
+    "public_oem_application_vocabulary": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "use_case_families": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["display_name", "industries", "core_discovery_terms", "extended_matching_terms", "context_terms", "patent_cpc_codes"],
+        "properties": {
+          "display_name": {"type": "string"},
+          "industries": {"type": "array", "items": {"type": "string"}},
+          "core_discovery_terms": {"type": "array", "items": {"type": "string"}},
+          "extended_matching_terms": {"type": "array", "items": {"type": "string"}},
+          "context_terms": {"type": "array", "items": {"type": "string"}},
+          "patent_cpc_codes": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "dspace_portfolio_items"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "dspace_portfolio_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "dspace_portfolio_item_id",
+          "entity_scope",
+          "name",
+          "commercial_name",
+          "owner",
+          "supplier",
+          "offering_type",
+          "aliases",
+          "capability_ids"
+        ],
+        "properties": {
+          "dspace_portfolio_item_id": {"type": "string"},
+          "entity_scope": {"const": "dspace_portfolio"},
+          "name": {"type": "string"},
+          "commercial_name": {"type": "string", "minLength": 1},
+          "owner": {"const": "dSPACE GmbH"},
+          "supplier": {"const": "dSPACE GmbH"},
+          "offering_type": {"enum": ["product", "service"]},
+          "aliases": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "capability_ids": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

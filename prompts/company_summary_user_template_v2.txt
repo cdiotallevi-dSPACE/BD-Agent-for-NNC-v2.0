@@ -1,0 +1,15 @@
+Create the company assessment from this validated context:
+{{COMPANY_CONTEXT_JSON}}
+
+Return JSON matching this schema:
+{{OUTPUT_SCHEMA_JSON}}
+
+FINAL VALIDATION RULES
+1. Every product mentioned exists in grounded_portfolio_items.
+2. Every recommendation preserves the deterministic result.
+3. Every evidence and chunk ID comes from the supplied context.
+4. Every dSPACE product or service is explicitly attributed to dSPACE.
+5. No dSPACE offering is described as belonging to the target company.
+6. The first mention of every recommended offering identifies dSPACE as owner or supplier.
+7. Target-company possessive wording applies only to its engineering needs, products, systems, projects, technologies, or activities.
+8. Return valid JSON with no surrounding text.

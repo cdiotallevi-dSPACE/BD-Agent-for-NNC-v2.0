@@ -1,0 +1,33 @@
+schema_version: 1.10.0
+score_model:
+  name: nnc_use_case_potential_fit_score
+  maximum: 100
+  dimensions:
+    company_neural_application:
+      maximum_points: 55
+    edge_deployment_intent:
+      maximum_points: 25
+    deployment_workflow_fit:
+      maximum_points: 20
+absence_rules:
+  no_edge_deployment_evidence:
+    relevance_effect: no_edge_bonus
+    exclusion_effect: none
+    score_reset: false
+  onnx_or_code_generation_missing:
+    relevance_effect: no_workflow_bonus
+    exclusion_effect: none
+    score_reset: false
+company_score_aggregation:
+  base_score: highest_distinct_use_case_score
+  second_distinct_use_case_score_at_least_40: 10
+  third_distinct_use_case_score_at_least_40: 5
+  maximum_breadth_bonus: 15
+  maximum_company_score: 100
+separate_status_dimensions:
+  deployment_readiness:
+    included_in_overall_product_match: false
+  evidence_confidence:
+    included_in_use_case_score: false
+  commercial_toolchain_status:
+    included_in_technical_fit_score: false

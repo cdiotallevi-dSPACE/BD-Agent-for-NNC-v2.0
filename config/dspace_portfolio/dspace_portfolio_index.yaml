@@ -1,0 +1,44 @@
+schema_version: "1.10"
+dspace_portfolio_index:
+  required: true
+  source_directory: data/dspace_portfolio_documents
+  runtime_directory: data/dspace_portfolio_runtime
+  persistence_directory: data/dspace_portfolio_runtime/chroma_db
+  collection_name: nnc_portfolio_documents
+  distance_metric: cosine
+  parser:
+    library: pymupdf
+    minimum_text_characters_per_page: 40
+    fail_on_empty_document: true
+  chunking:
+    minimum_tokens: 250
+    target_tokens: 450
+    maximum_tokens: 700
+    overlap_percent: 12
+    prefer_section_boundaries: true
+    stable_chunk_ids: true
+  embedding:
+    provider: ollama
+    model: bge-large
+    expected_dimension: 1024
+    batch_size: 16
+    request_timeout_seconds: 120
+    maximum_retries: 2
+  ingestion:
+    default_mode: incremental
+    hash_algorithm: sha256
+    delete_stale_documents: true
+    exclusive_writer_lock: true
+    validate_after_write: true
+  retrieval:
+    top_k_per_portfolio_item: 8
+    minimum_similarity: 0.35
+    maximum_chunks_per_page: 2
+    maximum_chunks_per_section: 3
+    require_portfolio_item_filter: true
+    persist_all_candidates: true
+  grounding:
+    required_for_positive_recommendation: true
+    minimum_selected_chunks_per_recommendation: 1
+    require_non_overview_capability_chunk: true
+    block_company_score_when_no_grounded_recommendation: true

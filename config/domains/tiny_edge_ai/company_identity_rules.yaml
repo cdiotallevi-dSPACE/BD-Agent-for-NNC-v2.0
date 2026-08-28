@@ -1,0 +1,25 @@
+schema_version: "1.3"
+strong_anchors:
+  - canonical_full_name
+  - registered_legal_name
+  - official_domain_ownership
+  - approved_affiliate_or_asset_domain
+  - explicit_target_company_author_affiliation
+  - explicit_target_company_as_subject_or_deployer
+  - explicit_partner_relationship
+  - corporate_organizational_unit_affiliation
+corporate_organizational_unit_resolution:
+  recognized_unit_patterns: [research valley, research centre, research center, research and development, R&D, advanced research, technology centre, technology center, technical centre, technical center, engineering centre, engineering center, innovation centre, innovation center, design studio, design center, design centre, software defined vehicle centre, software defined vehicle center, laboratory, labs]
+  ambiguous_brand_requires_official_corroboration: true
+zero_strength_anchors:
+  - search_query_token
+  - search_result_snippet_only
+  - bibliography_or_reference_only
+  - personal_initials
+third_party_academic_requirements:
+  require_any:
+    - canonical_full_name
+    - explicit_target_company_author_affiliation
+    - explicit_target_company_as_subject_or_deployer
+    - explicit_partner_relationship
+failure_scope: general_industry_background

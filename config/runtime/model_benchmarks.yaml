@@ -1,0 +1,5 @@
+schema_version: "2.0"
+policy: validation_only
+production_model_selection: fixed_by_specification
+embedding_model: bge-large
+final_report_model: gemma2:9b

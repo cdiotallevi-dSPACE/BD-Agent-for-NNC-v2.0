@@ -1,0 +1,10 @@
+company_name: Mahindra & Mahindra Limited
+company_aliases: [Mahindra]
+company_research_affiliations:
+  - Mahindra Research Valley
+affiliation_validation:
+  Mahindra Research Valley:
+    status: validated
+    anchor_type: corporate_organizational_unit_affiliation
+    validation_basis: official Mahindra and professional-publication metadata
+seed_urls: []

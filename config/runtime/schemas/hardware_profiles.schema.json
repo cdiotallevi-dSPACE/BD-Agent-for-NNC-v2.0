@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","required":["schema_version","active_profile","profiles"],"properties":{"schema_version":{"type":"string"},"active_profile":{"type":"string"},"profiles":{"type":"object"}},"additionalProperties":false}

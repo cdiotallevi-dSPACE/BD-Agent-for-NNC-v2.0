@@ -1,0 +1,5 @@
+schema_version: "2.0"
+templates:
+  - "site:{official_domain} {term}"
+  - "site:{official_domain} filetype:pdf {term}"
+

@@ -1,0 +1,184 @@
+patch_version: 1.10.0
+domain_id: tiny_edge_ai
+purpose: Make a confirmed neural engineering application the principal NNC signal; score edge deployment and model-to-code
+  workflow cumulatively as additional fit, without resetting relevance when they are not publicly disclosed.
+score_model:
+  name: nnc_use_case_potential_fit_score
+  maximum: 100
+  dimensions:
+    company_neural_application:
+      maximum_points: 55
+      scoring_mode: highest_single_supported_level
+      levels:
+        neural_network_actually_used_for_parameter_estimation: 55
+        neural_network_explicit_operational_embodiment: 50
+        neural_network_explicitly_claimed_for_parameter_estimation: 45
+        neural_network_optional_but_semantically_connected_to_estimator: 35
+        generic_machine_learning_estimator_without_neural_confirmation: 20
+        generic_neural_network_mention: 5
+        no_neural_or_machine_learning_method: 0
+    edge_deployment_intent:
+      maximum_points: 25
+      scoring_mode: highest_single_supported_level
+      levels:
+        deployed_on_mcu_ecu_soc_or_edge_ai_device: 25
+        target_edge_hardware_explicitly_selected: 22
+        implementation_on_onboard_controller_explicit: 18
+        real_time_onboard_execution_explicit: 15
+        implementable_on_ecu_or_controller: 10
+        embedded_adjacent_physical_application_only: 5
+        no_edge_deployment_decision_disclosed: 0
+    deployment_workflow_fit:
+      maximum_points: 20
+      scoring_mode: highest_single_supported_level
+      levels:
+        onnx_plus_generated_embedded_code: 20
+        onnx_plus_explicit_edge_deployment: 17
+        generated_c_or_cpp_from_neural_model: 15
+        onnx_model_adoption: 12
+        onnx_exportability_or_compatible_model_handover_confirmed: 10
+        model_conversion_or_embedded_ai_toolchain: 8
+        framework_known_and_likely_exportable: 5
+        no_public_workflow_evidence: 0
+qualifying_neural_roles:
+- physical_parameter_estimator
+- virtual_sensor
+- soft_sensor
+- state_estimator
+- condition_classifier
+- predictive_model
+- adaptive_learning_agent
+- anomaly_or_fault_detector
+- perception_model
+- neural_control_component
+qualifying_physical_parameters:
+- tractive_limit
+- wheel_stability
+- tire_road_friction
+- vehicle_mass
+- payload
+- battery_state_of_charge
+- battery_state_of_health
+- anode_voltage
+- anode_potential
+- electrolyte_concentration
+- lithium_plating_limit
+- temperature
+- pressure
+- component_wear
+- remaining_useful_life
+absence_rules:
+  no_edge_deployment_evidence:
+    relevance_effect: no_edge_bonus
+    exclusion_effect: none
+    score_reset: false
+    commercial_meaning: dspace_can_influence_edge_deployment_decision
+  onnx_or_code_generation_missing:
+    relevance_effect: no_workflow_bonus
+    exclusion_effect: none
+    score_reset: false
+relevance_bands:
+  0_19: low_relevance
+  '20_39': emerging_ml_opportunity
+  '40_64': medium_nnc_relevance
+  '65_84': high_nnc_relevance
+  '85_100': maximum_nnc_potential_fit
+mapping_classes:
+  nnc_influence_opportunity:
+    neural_application_points_minimum: 45
+    edge_deployment_required: false
+    onnx_required: false
+    code_generation_required: false
+  nnc_deployment_fit:
+    neural_application_points_minimum: 45
+    edge_deployment_points_minimum: 15
+    onnx_required: false
+  nnc_maximum_workflow_fit:
+    neural_application_points_minimum: 45
+    edge_deployment_points_minimum: 15
+    deployment_workflow_points_minimum: 12
+    compatible_model_handover_confirmed: true
+generic_ml_rule:
+  generic_machine_learning_estimator_without_neural_confirmation:
+    score: 20
+    relevance_class: nnc_opportunity_evidence
+    mapping_eligible: false
+    qualification_question: Is the estimator implemented using a neural network?
+model_handover_distinction:
+  onnx_currently_used:
+    workflow_points: 12
+  onnx_exportability_confirmed:
+    workflow_points: 10
+  framework_known_and_likely_exportable:
+    workflow_points: 5
+  exportability_unknown:
+    workflow_points: 0
+  explicitly_unsupported_or_incompatible:
+    requires_fit_risk_evaluation: true
+company_score_aggregation:
+  base_score: highest_distinct_use_case_score
+  breadth_bonus:
+    second_distinct_use_case_score_at_least_40: 10
+    third_distinct_use_case_score_at_least_40: 5
+    maximum_bonus: 15
+  maximum_company_score: 100
+separate_status_dimensions:
+  deployment_readiness:
+    included_in_overall_product_match: false
+  evidence_confidence:
+    included_in_use_case_score: false
+    reported_separately: true
+  commercial_toolchain_status:
+    values:
+    - greenfield
+    - manual_or_custom
+    - incumbent_tool_identified
+    - nnc_or_dspace_already_used
+    - unknown
+    included_in_technical_fit_score: false
+gm_regression:
+  US12246700B2:
+    company_neural_application: 45
+    edge_deployment_intent: 10
+    deployment_workflow_fit: 0
+    use_case_score: 55
+    relevance: medium_nnc_relevance
+    mapping_class: nnc_influence_opportunity
+  US20240302440A1:
+    company_neural_application: 50
+    edge_deployment_intent: 15
+    deployment_workflow_fit: 0
+    use_case_score: 65
+    relevance: high_nnc_relevance
+    mapping_class: nnc_deployment_fit
+  company_aggregation:
+    base_score: 65
+    breadth_bonus: 10
+    overall_product_match: 75
+    rating: high_nnc_relevance
+prohibited_claims_without_direct_evidence:
+- customer already uses Neural Net Coder
+- customer already uses ONNX
+- customer already generates C code from the model
+- optional patent neural embodiment is the confirmed production implementation
+regression_expectations:
+  mahindra_sae_vehicle_loading_generic_ml:
+    company_neural_application: 20
+    edge_deployment_intent: 0
+    deployment_workflow_fit: 0
+    use_case_score: 20
+    relevance: emerging_ml_opportunity
+    mapping_eligible: false
+  mahindra_mathworks_battery_health_hybrid_neural:
+    company_neural_application: 50
+    edge_deployment_intent: 0
+    deployment_workflow_fit: 0
+    use_case_score: 50
+    relevance: medium_nnc_relevance
+    mapping_class: nnc_influence_opportunity
+  gm_tractive_limit_patent:
+    use_case_score: 55
+    mapping_class: nnc_influence_opportunity
+  gm_predictive_battery_patent:
+    use_case_score: 65
+    mapping_class: nnc_deployment_fit

@@ -1,0 +1,164 @@
+%% BD-Agent for Power Electronics
+%% Architecture aligned with IMPLEMENTATION_SPEC v1.7.1
+%% Semantic-scope clarification: target_company, neutral_engineering_need, dspace_portfolio
+%% Open in Mermaid Live Editor, Mermaid Chart, VS Code Mermaid Preview, Obsidian,
+%% or another Mermaid-compatible reader/editor.
+
+%%{init: {
+  "theme": "base",
+  "flowchart": {
+    "curve": "basis",
+    "htmlLabels": true,
+    "nodeSpacing": 28,
+    "rankSpacing": 44
+  }
+}}%%
+
+flowchart LR
+
+  subgraph REGISTRY["1. Company Registry and Sequential Orchestration"]
+    XLSX["Companies.xlsx<br/>Companies worksheet"]
+    PREFLIGHT["Validate headers, reconcile pending ratings,<br/>preflight workbook write access"]
+    SELECT["Select Scan Y/N = Y<br/>skip completed or pending rows by default"]
+    QUEUE["Sequential target-company queue"]
+    RUN["Timestamped company run context"]
+
+    XLSX --> PREFLIGHT --> SELECT --> QUEUE --> RUN
+  end
+
+  subgraph COMPANY_SCOPE["2. Scope A — target_company"]
+    SEARCH["Deterministic search planning"]
+    RETRIEVE["Bounded asynchronous retrieval<br/>official pages, PDFs and technical sources"]
+    CACHE["Raw and parsed-passage cache<br/>content + parser/configuration fingerprints"]
+    COMPANY_TAX["company_domain_taxonomy.yaml<br/>products, systems, technologies, components,<br/>applications, activities and standards"]
+    EVIDENCE["Deterministic evidence processing<br/>context rules, exclusions and deduplication"]
+    COMPANY_ENTITIES["Target-company entities<br/>and engineering activities"]
+    COMPANY_JSON["company_assessment.json"]
+
+    RUN --> SEARCH --> RETRIEVE --> CACHE --> EVIDENCE --> COMPANY_ENTITIES --> COMPANY_JSON
+    COMPANY_TAX --> EVIDENCE
+  end
+
+  subgraph NEED_SCOPE["3. Scope B — neutral_engineering_need"]
+    NEED_TAX["engineering_need_taxonomy.yaml<br/>simulation, SIL, HIL, RCP, test, validation,<br/>measurement, automation and power-level testing"]
+    NEED_DERIVE["Derive confirmed or cautiously inferred<br/>engineering and validation needs"]
+    NEEDS["Neutral engineering-need records<br/>with evidence status and information gaps"]
+
+    COMPANY_ENTITIES --> NEED_DERIVE --> NEEDS
+    NEED_TAX --> NEED_DERIVE
+  end
+
+  subgraph DSPACE_SCOPE["4. Scope C — dspace_portfolio"]
+    DSPACE_PDFS["Authoritative dSPACE portfolio PDFs"]
+    INGEST["Exclusive-writer ingestion<br/>section-aware parsing + BGE embeddings"]
+    CHROMA["ChromaDB: dspace_portfolio_documents<br/>read-only during company scans"]
+    PORTFOLIO_YAML["dspace_portfolio_profiles.yaml<br/>portfolio items, capabilities, prerequisites,<br/>limitations and supported applications"]
+    ALIASES["dspace_portfolio_aliases.yaml"]
+
+    DSPACE_PDFS --> INGEST --> CHROMA
+    ALIASES --> PORTFOLIO_YAML
+  end
+
+  subgraph MAPPING["5. Explicit Applicability-Mapping Layer"]
+    MAP_RULES["applicability_mapping_rules.yaml"]
+    CAP_REQ["Required dSPACE capability IDs<br/>derived from neutral needs"]
+    BGE_QUERY["BGE semantic query from company entities<br/>and neutral engineering needs"]
+    DSPACE_RETRIEVE["Retrieve supporting dSPACE passages"]
+    APPLICABILITY["Deterministic applicability assessment<br/>YAML score + subordinate semantic score"]
+    HARD["YAML prerequisites, limitations,<br/>organization and lifecycle hard rules"]
+    PORTFOLIO_RESULT["dspace_portfolio_assessment.json"]
+    MAP_JSON["applicability_mappings.json<br/>company entity → need → dSPACE capability<br/>→ dSPACE portfolio item"]
+    FINAL["final_assessment.json<br/>scope-separated authoritative result"]
+
+    NEEDS --> CAP_REQ
+    COMPANY_ENTITIES --> BGE_QUERY
+    NEEDS --> BGE_QUERY
+    BGE_QUERY --> DSPACE_RETRIEVE
+    CHROMA --> DSPACE_RETRIEVE
+    MAP_RULES --> APPLICABILITY
+    PORTFOLIO_YAML --> APPLICABILITY
+    CAP_REQ --> APPLICABILITY
+    DSPACE_RETRIEVE --> APPLICABILITY
+    APPLICABILITY --> HARD
+    PORTFOLIO_YAML --> HARD
+    HARD --> PORTFOLIO_RESULT
+    HARD --> MAP_JSON
+    COMPANY_JSON --> FINAL
+    NEEDS --> FINAL
+    PORTFOLIO_RESULT --> FINAL
+    MAP_JSON --> FINAL
+  end
+
+  RELATION["Authoritative relationship<br/><b>Target-company entity</b><br/>↓ evidence supports<br/><b>Neutral engineering need</b><br/>↓ requires<br/><b>dSPACE capability</b><br/>↓ provided by<br/><b>dSPACE portfolio item</b>"]
+  RELATION -. contract .-> MAPPING
+
+  subgraph RATING["6. Deterministic Rating and Workbook Update"]
+    RATE["Overall Product Match 0–100<br/>means dSPACE portfolio applicability<br/>to the target company"]
+    WRITABLE{"Companies.xlsx writable?"}
+    ATOMIC["Backup, lock, H-cell-only update,<br/>temporary validation and atomic replace"]
+    PENDING["pending_rating_updates.json"]
+    AUDIT["Workbook update audit"]
+
+    FINAL --> RATE --> WRITABLE
+    WRITABLE -->|yes| ATOMIC --> AUDIT
+    WRITABLE -->|no| PENDING --> AUDIT
+  end
+
+  subgraph LLM["7. One Mandatory Local LLM Company Summary"]
+    CURATE["Curated scope-separated payload"]
+    PROMPT["TARGET_COMPANY_ENTITIES<br/>NEUTRAL_ENGINEERING_NEEDS<br/>DSPACE_PORTFOLIO_CAPABILITIES<br/>DETERMINISTIC_APPLICABILITY_RESULTS"]
+    SUMMARY_LLM["Benchmark-selected local 8–12B model<br/>presentation layer only"]
+    VALIDATE_LLM["Python validates JSON, scopes, IDs,<br/>hard rules and unsupported claims"]
+    NARRATIVE["Readable management and sales assessment"]
+    FALLBACK["Deterministic readable fallback"]
+
+    FINAL --> CURATE --> PROMPT --> SUMMARY_LLM --> VALIDATE_LLM
+    VALIDATE_LLM -->|valid| NARRATIVE
+    VALIDATE_LLM -->|invalid or unavailable| FALLBACK
+  end
+
+  subgraph REPORT["8. Rendering, Audit and Next Company"]
+    RENDER["Assessment Renderer"]
+    PDF["sales_assessment.pdf"]
+    MD["Markdown report"]
+    MANIFEST["run manifest, evidence, mappings,<br/>scores, prompt/model versions and logs"]
+    NEXT["Continue sequentially"]
+
+    NARRATIVE --> RENDER
+    FALLBACK --> RENDER
+    FINAL --> RENDER
+    RENDER --> PDF
+    RENDER --> MD
+    COMPANY_JSON --> MANIFEST
+    PORTFOLIO_RESULT --> MANIFEST
+    MAP_JSON --> MANIFEST
+    AUDIT --> MANIFEST
+    RENDER --> MANIFEST --> NEXT
+    NEXT -->|more selected rows| RUN
+  end
+
+  SCOPE_RULE["Naming rule<br/><b>company_*</b> = investigated customer side<br/><b>engineering_need_*</b> = neutral bridge<br/><b>dspace_portfolio_*</b> = recommended solution side<br/>Generic cross-scope product_* fields are prohibited"]
+  SCOPE_RULE -. governs .-> COMPANY_SCOPE
+  SCOPE_RULE -. governs .-> NEED_SCOPE
+  SCOPE_RULE -. governs .-> DSPACE_SCOPE
+  SCOPE_RULE -. governs .-> MAPPING
+
+  classDef python fill:#E8F1FB,stroke:#2F6DA8,color:#102A43,stroke-width:1.5px;
+  classDef company fill:#EAF4FF,stroke:#1F6FB2,color:#12324A,stroke-width:1.8px;
+  classDef need fill:#FFF4D6,stroke:#B7791F,color:#5F370E,stroke-width:1.8px;
+  classDef dspace fill:#EEE8FF,stroke:#7152B3,color:#332155,stroke-width:1.8px;
+  classDef llm fill:#E5F6EC,stroke:#27864B,color:#123B24,stroke-width:1.8px;
+  classDef artifact fill:#E3F5F4,stroke:#23837E,color:#123E3B,stroke-width:1.4px;
+  classDef control fill:#FFF8CC,stroke:#A67C00,color:#4F3B00,stroke-width:1.4px;
+  classDef fallback fill:#FDECEC,stroke:#B84343,color:#5A1D1D,stroke-width:1.5px;
+  classDef principle fill:#FFFFFF,stroke:#111827,color:#111827,stroke-width:2px,stroke-dasharray:5 3;
+
+  class PREFLIGHT,SELECT,QUEUE,RUN,SEARCH,RETRIEVE,CACHE,EVIDENCE,NEED_DERIVE,CAP_REQ,BGE_QUERY,DSPACE_RETRIEVE,APPLICABILITY,HARD,RATE,ATOMIC,PENDING,AUDIT,CURATE,VALIDATE_LLM,RENDER,NEXT python;
+  class COMPANY_TAX,COMPANY_ENTITIES,COMPANY_JSON company;
+  class NEED_TAX,NEEDS need;
+  class DSPACE_PDFS,INGEST,CHROMA,PORTFOLIO_YAML,ALIASES,PORTFOLIO_RESULT dspace;
+  class MAP_RULES,MAP_JSON,FINAL,PDF,MD,MANIFEST artifact;
+  class PROMPT,SUMMARY_LLM,NARRATIVE llm;
+  class XLSX,WRITABLE control;
+  class FALLBACK fallback;
+  class RELATION,SCOPE_RULE principle;

@@ -1,0 +1,9 @@
+config_id: tiny_edge_ai_model_and_framework_taxonomy
+config_version: 1.0.0
+schema_version: 1.0.0
+status: active
+model_terms:
+  strong_neural: [neural network, CNN, 1D CNN, RNN, LSTM, GRU, MLP, autoencoder, transformer]
+  weak_only: [AI, machine learning, analytics, algorithm]
+  non_neural: [linear regression, decision tree, Kalman filter, support vector machine]
+framework_terms: [TensorFlow, PyTorch, Keras, ONNX, TensorFlow Lite Micro, CMSIS-NN]

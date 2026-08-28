@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "source": "BD-Agent-for-NNC_IMPLEMENTATION_SPEC_v1.0 Appendix E",
+  "cases": [
+    {"id":1,"use_case":"AI-Enhanced Virtual Wheel Force Transducer","model_gate":"confirmed","target_gate":"confirmed","expected":"high"},
+    {"id":2,"use_case":"Edge-AI Virtual-Sensor Deployment","model_gate":"strong","target_gate":"confirmed","expected":"medium_high"},
+    {"id":3,"use_case":"Tire and Brake Wear Monitoring","model_gate":"unknown","target_gate":"conditional","expected":"medium"},
+    {"id":4,"use_case":"Virtual Tire-Wear Monitoring","model_gate":"unknown","target_gate":"conditional","expected":"medium"},
+    {"id":5,"use_case":"Battery SOC/SOH Virtual Sensor","model_gate":"confirmed","target_gate":"confirmed","expected":"high"},
+    {"id":6,"use_case":"Virtual Pressure Sensor","model_gate":"non_neural","target_gate":"confirmed","expected":"low"},
+    {"id":7,"use_case":"Hydraulic Motor Temperature Soft Sensor","model_gate":"confirmed","target_gate":"unknown","expected":"medium_high_conditional"},
+    {"id":8,"use_case":"In-Cabin Acoustic Monitoring","model_gate":"proposed","target_gate":"confirmed","expected":"partner_exploratory"},
+    {"id":9,"use_case":"Predictive Health Monitoring","model_gate":"confirmed","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":10,"use_case":"Voice and Object Recognition","model_gate":"confirmed","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":11,"use_case":"Motor Virtual Sensor","model_gate":"unknown","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":12,"use_case":"Multimodal Secure Sensing","model_gate":"unknown","target_gate":"confirmed","expected":"partner_low_medium"},
+    {"id":13,"use_case":"Smart Audio and Gesture Recognition","model_gate":"confirmed","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":14,"use_case":"Indirect Tyre-Pressure Monitoring","model_gate":"proposed","target_gate":"platform_only","expected":"exploratory"},
+    {"id":15,"use_case":"Predictive Motor Maintenance","model_gate":"unknown","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":16,"use_case":"Predictive EV Range","model_gate":"unknown","target_gate":"platform_only","expected":"exploratory"},
+    {"id":17,"use_case":"Touchless HMI","model_gate":"strong","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":18,"use_case":"Glass-Break Detection","model_gate":"unknown","target_gate":"confirmed","expected":"partner_medium"},
+    {"id":19,"use_case":"Battery SoC and SoH Estimation","model_gate":"potential","target_gate":"confirmed","expected":"exploratory"},
+    {"id":20,"use_case":"Edge Vision and Person Counting","model_gate":"confirmed","target_gate":"confirmed","expected":"partner_medium_high"},
+    {"id":21,"use_case":"Camera-Based Occupant Detection","model_gate":"confirmed","target_gate":"non_constrained_edge","expected":"medium_high"},
+    {"id":22,"use_case":"Virtual Piston-Pressure Sensor","model_gate":"confirmed","target_gate":"confirmed","expected":"high_conditional"},
+    {"id":23,"use_case":"Hybrid Battery SOC/SOH Estimation","model_gate":"confirmed","target_gate":"confirmed","expected":"high"},
+    {"id":24,"use_case":"Edge-AI Predictive Maintenance","model_gate":"unknown","target_gate":"gateway_or_plc","expected":"low_medium"}
+  ]
+}

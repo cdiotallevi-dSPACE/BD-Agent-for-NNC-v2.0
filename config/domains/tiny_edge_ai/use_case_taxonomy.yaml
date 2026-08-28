@@ -1,0 +1,12 @@
+config_id: tiny_edge_ai_use_case_taxonomy
+config_version: 1.5.0
+schema_version: 1.0.0
+status: active
+use_cases:
+  virtual_sensor: [virtual sensor, soft sensor, learned observer, neural state estimator]
+  condition_monitoring: [predictive maintenance, anomaly detection, remaining useful life]
+  perception: [object detection, occupant detection, gesture recognition, person counting]
+  audio: [keyword spotting, acoustic event detection, glass break detection]
+  control_and_estimation: [battery state estimation, motor control, sensor fusion]
+  indirect_physical_state_and_virtual_sensing: [indirect sensing, indirect measurement, virtual sensor, soft sensor, sensorless, sensorless estimation, state estimation, operating condition, operating-condition recognition, condition recognition, loading condition, vehicle loading condition, vehicle load estimation, payload estimation, vehicle mass estimation, driving behavior, telematics based inference, telematics machine learning, low-cost sensing]
+  battery_health_and_state_estimation: [battery health, battery health monitoring, state of health, SOH, state of charge, SOC, battery state estimation, battery capacity estimation, battery aging, battery degradation, battery prognostics, remaining useful life, RUL, battery management system, BMS, cell health]

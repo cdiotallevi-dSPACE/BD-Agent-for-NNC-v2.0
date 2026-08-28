@@ -1,0 +1,122 @@
+config_id: tiny_edge_ai_shared_use_case_taxonomy
+config_version: 1.12.0
+schema_version: 1.0.0
+status: active
+
+# Core terms are executed as bounded atomic searches by every discovery channel.
+# Extended terms are matched locally in titles, snippets, HTML, PDFs and patent
+# metadata/full text. Context terms support assessment but do not establish
+# relevance without company attribution and neural/ML evidence.
+generic_neural_terms:
+  core_discovery_terms: [neural network, artificial neural network, deep neural network, transfer learning]
+  extended_matching_terms: [ANN, DNN, CNN, recurrent neural network, RNN, LSTM, trained neural model]
+  patent_cpc_codes: [G06N3/02, G06N3/04, G06N3/044, G06N3/0464, G06N20/00]
+
+channel_policy:
+  fast_iteration_core_terms_per_family: 2
+  standard_core_terms_per_family: 3
+  execute_extended_terms_via_web: false
+  apply_extended_terms_locally: true
+  apply_context_terms_during_assessment: true
+
+# These are public-facing OEM application phrases. They improve discovery
+# priority but never establish neural adoption or NNC applicability alone.
+public_oem_application_vocabulary:
+  - battery state estimation
+  - motor thermal management
+  - vehicle perception
+  - driver monitoring
+  - predictive diagnostics
+  - software-defined vehicle
+  - intelligent battery management
+  - sensorless estimation
+  - AI-enabled vehicle control
+
+use_case_families:
+  electric_machine_thermal_state_estimation:
+    display_name: Electric-Machine Thermal-State Estimation
+    industries: [automotive, transportation, industrial, energy]
+    core_discovery_terms: [motor thermal management, motor temperature estimation, rotor temperature estimation]
+    extended_matching_terms: [electric motor temperature, rotor temperature, stator temperature, stator temperature estimation, motor thermal estimation, thermal state estimation, sensorless motor temperature, neural temperature estimator, recurrent ANN temperature]
+    context_terms: [phase current, motor speed, coolant temperature, stator, rotor, torque control, real-time temperature, dedicated temperature sensor]
+    patent_cpc_codes: [B60L3/0061, B60L2240/425]
+
+  combustion_and_powertrain_neural_control:
+    display_name: Combustion and Powertrain Neural Control
+    industries: [automotive, transportation]
+    core_discovery_terms: [combustion phasing, neural engine control, spark timing neural network]
+    extended_matching_terms: [combustion phasing control, spark ignition control, engine calibration, neural powertrain control, artificial neural network combustion, feed-forward ANN, MBT spark timing]
+    context_terms: [internal combustion engine, spark ignited, engine controller, combustion control, torque control, air charge, camshaft position]
+    patent_cpc_codes: [F02D]
+
+  autonomous_driving_neural_perception:
+    display_name: Autonomous-Driving Neural Perception
+    industries: [automotive, transportation]
+    core_discovery_terms: [autonomous driving neural network, neural perception, vehicle environment recognition]
+    extended_matching_terms: [autonomous driving system, deep neural network vehicle, multiple resolution neural network, obstacle recognition, image recognition vehicle]
+    context_terms: [camera, radar, lidar, vehicle controller, object recognition, traffic object]
+    patent_cpc_codes: [G06V20/56, G06V20/58]
+
+  battery_power_capability_and_adaptation:
+    display_name: Battery Power-Capability Estimation and Adaptation
+    industries: [automotive, transportation, energy, industrial]
+    core_discovery_terms: [battery state estimation, battery state of power, intelligent battery management]
+    extended_matching_terms: [battery state of charge, battery state of health, LSTM battery voltage, transfer learning battery, state of power estimation, SOP estimation, battery power capability, power capability estimation, battery lifetime prediction, battery lifetime updating, adaptive battery model, battery estimation model, binary search SOP, recurrent neural network battery]
+    context_terms: [battery lifetime, battery controller, BMS, voltage, current, temperature, trained model, virtual power pulse, hidden LSTM layer]
+    patent_cpc_codes: [G01R31/36, G01R31/367, G01R31/382, G01R31/392]
+
+  vehicle_dynamics_learned_estimation:
+    display_name: Vehicle-Dynamics Learned Estimation
+    industries: [automotive, transportation]
+    core_discovery_terms: [tractive limit, wheel stability, tire-road friction]
+    extended_matching_terms: [traction limit, wheel slip, tire saturation, regression model, classification model]
+    context_terms: [vehicle dynamics, traction control, wheel controller, slip ratio]
+    patent_cpc_codes: []
+
+  battery_virtual_measurement_and_predictive_control:
+    display_name: Battery Virtual Measurement and Predictive Control
+    industries: [automotive, transportation, energy, industrial]
+    core_discovery_terms: [predictive charging, virtual measurement, charging control]
+    extended_matching_terms: [dynamic charging, dynamic performance variable, calculated performance variable, anode voltage, anode potential, electrolyte concentration, electrochemical phenomenon, future battery state, baseline calibration, lithium plating, data-driven estimation, neural network learning agent]
+    context_terms: [battery system, charging limit, onboard charging module, BMS]
+    patent_cpc_codes: [B60L58/10, B60L58/12, B60L58/16, G01R31/36, G01R31/367, G01R31/392, H02J7/84, H02J7/90, G05B13/048]
+
+  indirect_physical_state_and_virtual_sensing:
+    display_name: Indirect Physical-State and Virtual Sensing
+    industries: [automotive, transportation, energy, industrial]
+    core_discovery_terms: [sensorless estimation, virtual sensor, vehicle state estimation]
+    extended_matching_terms: [soft sensor, latent state, indirect sensing, indirect measurement, learned observer, learned vehicle control, AI-enabled vehicle control]
+    context_terms: [physical state, controller, real-time, operating condition]
+    patent_cpc_codes: []
+
+  condition_monitoring_and_prognostics:
+    display_name: Condition Monitoring and Prognostics
+    industries: [automotive, transportation, energy, industrial]
+    core_discovery_terms: [predictive diagnostics, condition monitoring, predictive maintenance]
+    extended_matching_terms: [prognostics, anomaly detection, remaining useful life, fault detection, fault classification, fault prediction, degradation estimation]
+    context_terms: [health monitoring, controller, sensor, real-time]
+    patent_cpc_codes: []
+
+  perception_classification_and_detection:
+    display_name: Perception, Classification and Detection
+    industries: [automotive, transportation, industrial]
+    core_discovery_terms: [vehicle perception, object detection, sensor fusion]
+    extended_matching_terms: [environment perception, image classification, machine vision, perception model, image recognition, obstacle detection, object tracking, road-user detection]
+    context_terms: [camera, sensor, controller, real-time]
+    patent_cpc_codes: [G06V20/56, G06V20/58]
+
+  occupant_driver_cabin_sensing:
+    display_name: Occupant, Driver and Cabin Sensing
+    industries: [automotive, transportation]
+    core_discovery_terms: [driver monitoring, occupant monitoring, cabin sensing]
+    extended_matching_terms: [driver state monitoring, driver distraction, driver drowsiness, occupant detection, occupant classification, driver state detection, in-cabin monitoring, occupancy detection]
+    context_terms: [camera, vehicle, controller, real-time]
+    patent_cpc_codes: []
+
+  software_defined_vehicle:
+    display_name: Software-Defined Vehicle and Centralized Edge Computing
+    industries: [automotive, transportation]
+    core_discovery_terms: [software-defined vehicle, centralized vehicle computing, onboard AI]
+    extended_matching_terms: [zonal controller, vehicle computer, edge computing vehicle, centralized compute platform, AI-enabled vehicle control]
+    context_terms: [vehicle controller, domain controller, zonal architecture, embedded computing, real-time]
+    patent_cpc_codes: []

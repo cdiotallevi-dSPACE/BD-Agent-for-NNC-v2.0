@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["company_name", "portfolio_supplier_name", "overall_assessment", "key_information_gaps", "recommended_next_actions"],
+  "properties": {
+    "company_name": {"type": "string", "minLength": 1},
+    "portfolio_supplier_name": {"const": "dSPACE GmbH"},
+    "overall_assessment": {
+      "type": "string",
+      "minLength": 450,
+      "maxLength": 3000,
+      "description": "A 100-300 word evidence-grounded assessment, preferably 160-220 words, that explains the target company's engineering needs, why each recommended dSPACE offering applies, and the concrete engineering purpose for which the target company would use it."
+    },
+    "key_information_gaps": {"type": "array", "maxItems": 4, "items": {"type": "string", "minLength": 1}},
+    "recommended_next_actions": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["priority", "action"],
+        "properties": {
+          "priority": {"enum": ["high", "medium", "low"]},
+          "action": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

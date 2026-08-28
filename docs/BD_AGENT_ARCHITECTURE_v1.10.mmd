@@ -1,0 +1,111 @@
+%% BD-Agent for Power Electronics
+%% Architecture aligned with IMPLEMENTATION_SPEC v1.10
+%% Mandatory ChromaDB portfolio ingestion, retrieval, and grounding
+
+%%{init: {
+  "theme": "base",
+  "flowchart": {
+    "curve": "basis",
+    "htmlLabels": true,
+    "nodeSpacing": 28,
+    "rankSpacing": 44
+  }
+}}%%
+
+flowchart LR
+
+  subgraph INGEST["A. Mandatory dSPACE Portfolio Ingestion — Separate Exclusive-Writer Command"]
+    PDFDIR["data/dspace_portfolio_documents<br/>authoritative PDFs"]
+    DISCOVER["Discover PDFs<br/>resolve portfolio item IDs<br/>SHA-256 hashing"]
+    PARSE["PyMuPDF page extraction<br/>headings, pages, diagnostics"]
+    CHUNK["Deterministic section-aware chunking<br/>250–700 tokens, stable IDs"]
+    EMBED["Ollama bge-large embeddings<br/>validate 1024 dimensions"]
+    STORE["ChromaDB PersistentClient<br/>collection: dspace_portfolio_documents"]
+    MANIFEST["collection_manifest.json<br/>document_manifest.json<br/>ingestion_report.json"]
+    INDEXCHECK["Post-ingestion validation<br/>count, metadata, model, dimension,<br/>coverage, stale and failed documents"]
+    READY["Portfolio index status: READY"]
+
+    PDFDIR --> DISCOVER --> PARSE --> CHUNK --> EMBED --> STORE --> MANIFEST --> INDEXCHECK
+    INDEXCHECK -->|valid| READY
+    INDEXCHECK -->|invalid| INGESTFAIL["Fail ingestion<br/>nonzero exit code"]
+  end
+
+  subgraph PRECHECK["B. Mandatory Production Preflight"]
+    INSTALL["Validate dependencies<br/>chromadb, pymupdf, httpx, ollama"]
+    MODELS["Validate models<br/>bge-large and gemma2:9b"]
+    OPENINDEX["Open persistent collection read-only"]
+    VERIFYINDEX["Validate collection manifest<br/>nonempty, bge-large, 1024,<br/>all active portfolio items indexed"]
+    START{"Index ready?"}
+
+    INSTALL --> MODELS --> OPENINDEX --> VERIFYINDEX --> START
+    READY -. required .-> OPENINDEX
+    START -->|no| STOP["failed_portfolio_index_preflight<br/>do not process company<br/>do not update Companies.xlsx"]
+  end
+
+  subgraph COMPANY["C. Sequential Company Assessment"]
+    XLSX["Companies.xlsx<br/>select every row with G = Y"]
+    EVIDENCE["Deterministic target-company evidence"]
+    NEEDS["Neutral engineering needs"]
+    CANDIDATES["Deterministic dSPACE portfolio candidates"]
+    QUERY["Build compact query per candidate<br/>entities + needs + capabilities"]
+    QUERYEMBED["bge-large query embedding"]
+    RETRIEVE["Filtered Chroma query<br/>same portfolio item ID<br/>top-k + similarity threshold"]
+    RECORD["retrieval_records.json<br/>chunk IDs, pages, sections,<br/>distances and similarities"]
+    GATE{"Portfolio grounding gate"}
+    GROUNDED["Grounded dSPACE applicability<br/>supporting chunk IDs minItems = 1"]
+    UNGROUNDED["insufficient_dspace_portfolio_grounding<br/>candidate cannot contribute to score"]
+    FINAL["final_assessment.json<br/>applicability_mappings.json"]
+
+    START -->|yes| XLSX --> EVIDENCE --> NEEDS --> CANDIDATES --> QUERY --> QUERYEMBED --> RETRIEVE --> RECORD --> GATE
+    STORE -. read-only retrieval .-> RETRIEVE
+    GATE -->|valid authoritative chunks| GROUNDED --> FINAL
+    GATE -->|empty, wrong item, overview-only,<br/>or retrieval failure| UNGROUNDED
+  end
+
+  subgraph PUBLICATION["D. Score, Narrative, and Report Publication"]
+    ANY{"At least one grounded<br/>dSPACE recommendation?"}
+    SCORE["Calculate deterministic<br/>Overall Product Match"]
+    WRITE["Atomically update column H<br/>or queue pending update"]
+    LLM["gemma2:9b<br/>one final narrative attempt"]
+    REPORT["PDF and Markdown report<br/>source PDF, page, section, chunk ID"]
+    FAILGROUND["failed_portfolio_grounding<br/>leave previous Excel score unchanged"]
+
+    FINAL --> ANY
+    ANY -->|yes| SCORE --> WRITE --> LLM --> REPORT
+    ANY -->|no| FAILGROUND
+    UNGROUNDED --> ANY
+  end
+
+  subgraph TESTS["E. Mandatory Acceptance Gates"]
+    T1["Ingestion creates persistent collection"]
+    T2["Incremental rerun is idempotent"]
+    T3["Changed/removed PDFs update chunks"]
+    T4["Known query retrieves expected fixture chunk"]
+    T5["Positive mapping has nonempty chunk IDs"]
+    T6["Missing retrieval blocks Excel score"]
+    COMPLETE["CODER implementation complete"]
+
+    T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> COMPLETE
+  end
+
+  PRINCIPLE["Production-quality rule<br/><b>No authoritative retrieved dSPACE chunk</b><br/>means <b>no positive recommendation</b>,<br/><b>no new company score</b>, and<br/><b>no evidence-grounded report claim</b>"]
+  PRINCIPLE -. governs .-> GATE
+  PRINCIPLE -. governs .-> ANY
+
+  classDef ingest fill:#E8F1FB,stroke:#2F6DA8,color:#102A43,stroke-width:1.6px;
+  classDef vector fill:#F0E9FF,stroke:#7651B5,color:#37205A,stroke-width:1.7px;
+  classDef control fill:#FFF4D6,stroke:#B7791F,color:#5F370E,stroke-width:1.5px;
+  classDef good fill:#E5F6EC,stroke:#27864B,color:#123B24,stroke-width:1.8px;
+  classDef bad fill:#FDECEC,stroke:#B84343,color:#5A1D1D,stroke-width:1.7px;
+  classDef artifact fill:#E3F5F4,stroke:#23837E,color:#123E3B,stroke-width:1.5px;
+  classDef llm fill:#E8F7EE,stroke:#287D49,color:#123B24,stroke-width:1.7px;
+  classDef principle fill:#FFFFFF,stroke:#111827,color:#111827,stroke-width:2px,stroke-dasharray:5 3;
+
+  class DISCOVER,PARSE,CHUNK,INSTALL,MODELS,VERIFYINDEX,EVIDENCE,NEEDS,CANDIDATES,QUERY,RECORD,SCORE,WRITE,T1,T2,T3,T4,T5,T6 ingest;
+  class EMBED,STORE,OPENINDEX,QUERYEMBED,RETRIEVE vector;
+  class START,GATE,ANY control;
+  class READY,GROUNDED,COMPLETE good;
+  class INGESTFAIL,STOP,UNGROUNDED,FAILGROUND bad;
+  class PDFDIR,MANIFEST,INDEXCHECK,XLSX,FINAL,REPORT artifact;
+  class LLM llm;
+  class PRINCIPLE principle;

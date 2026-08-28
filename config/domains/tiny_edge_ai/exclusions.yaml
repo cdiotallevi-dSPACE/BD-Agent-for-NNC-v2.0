@@ -1,0 +1,15 @@
+schema_version: "1.2"
+hard_exclusions: [job_board_only, distributor_only, unrelated_acronym]
+deterministic_exclusions:
+  - exclusion_id: NNC-FP-001
+    reason_code: signal_quantization_not_model_quantization
+  - exclusion_id: NNC-FP-002
+    reason_code: target_only_no_neural_context
+  - exclusion_id: NNC-FP-003
+    reason_code: cross_document_gate_mixing
+  - exclusion_id: NNC-FP-004
+    reason_code: target_company_not_established
+  - exclusion_id: NNC-FP-005
+    reason_code: ambiguous_company_alias_only
+  - exclusion_id: NNC-FP-006
+    reason_code: bibliography_initials_alias_collision

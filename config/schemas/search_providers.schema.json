@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "search_cost_policy", "providers", "retrieval", "candidate_budget", "seed_policy"],
+  "properties": {
+    "version": {"type": "string"},
+    "run_profiles": {"type": "object", "additionalProperties": {"type": "object"}},
+    "search_cost_policy": {
+      "type": "object",
+      "required": ["mode", "paid_overage_allowed", "ledger_path"],
+      "properties": {
+        "mode": {"const": "zero_cost_only"},
+        "paid_overage_allowed": {"const": false},
+        "ledger_path": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "providers": {
+      "type": "object",
+      "required": ["ddgs", "sitemap", "internal_crawler", "publication_hub", "pdf_link"],
+      "additionalProperties": {
+        "type": "object",
+          "required": ["enabled", "required"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "required": {"type": "boolean"},
+            "activation_mode": {"enum": ["required", "enabled", "auto", "disabled"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "retrieval": {
+      "type": "object",
+      "required": ["maximum_total_urls", "maximum_pdf_documents", "maximum_pages_per_pdf", "maximum_total_parsed_pdf_pages", "max_download_bytes", "download_concurrency", "progress_interval_documents"],
+      "properties": {
+        "maximum_total_urls": {"type": "integer", "minimum": 1},
+        "maximum_pdf_documents": {"type": "integer", "minimum": 1},
+        "maximum_pages_per_pdf": {"type": "integer", "minimum": 1},
+        "maximum_total_parsed_pdf_pages": {"type": "integer", "minimum": 1},
+        "max_download_bytes": {"type": "integer", "minimum": 1},
+        "download_concurrency": {"type": "integer", "minimum": 1, "maximum": 32},
+        "progress_interval_documents": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "candidate_budget": {
+      "type": "object",
+      "required": ["maximum_canonical_non_seed_candidates_per_company", "maximum_retrieved_non_seed_documents_per_company", "maximum_non_seed_candidates_per_host", "maximum_career_pages_per_company", "maximum_low_priority_third_party_pages", "persist_dropped_candidate_summary"],
+      "additionalProperties": true
+    },
+    "engineering_publisher_profiles": {"type":"object","additionalProperties":{"type":"object","additionalProperties":true}},
+    "candidate_retrieval_priority": {"type":"object","additionalProperties":{"type":"integer"}},
+    "patent_discovery": {"type":"object","additionalProperties":true},
+    "patent_native_sources": {"type":"object","additionalProperties":true},
+    "patent_discovery_budget": {"type":"object","additionalProperties":true},
+    "patent_full_text_reservations": {"type":"object","additionalProperties":{"type":"integer"}},
+    "uspto_patent_file_wrapper": {"type":"object","additionalProperties":true},
+    "seed_policy": {
+      "type": "object",
+      "required": ["explicit_seeds_mandatory", "protect_valid_seeds_for_retrieval", "maximum_explicit_seed_entries_per_company", "exempt_protected_seeds_from_host_caps", "exempt_protected_seeds_from_general_candidate_cap"],
+      "properties": {
+        "explicit_seeds_mandatory": {"const": true},
+        "protect_valid_seeds_for_retrieval": {"const": true},
+        "maximum_explicit_seed_entries_per_company": {"type": "integer", "minimum": 1},
+        "exempt_protected_seeds_from_host_caps": {"const": true},
+        "exempt_protected_seeds_from_general_candidate_cap": {"const": true}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

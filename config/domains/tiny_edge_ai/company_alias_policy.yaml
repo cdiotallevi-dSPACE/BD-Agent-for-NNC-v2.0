@@ -1,0 +1,26 @@
+schema_version: "1.2"
+company_alias_classes:
+  - canonical_name
+  - legal_name
+  - brand_name
+  - long_unambiguous_alias
+  - short_acronym
+  - ambiguous_short_acronym
+policies:
+  ambiguous_short_acronym:
+    query_allowed: true
+    query_priority: low
+    attribution_anchor: none
+    independent_attribution_allowed: false
+  short_acronym:
+    query_allowed: true
+    query_priority: low
+    attribution_anchor: none
+    independent_attribution_allowed: false
+zero_strength_locations:
+  - bibliography
+  - references
+  - works_cited
+  - author_or_editor_name
+  - provider_search_result_snippet
+  - search_query

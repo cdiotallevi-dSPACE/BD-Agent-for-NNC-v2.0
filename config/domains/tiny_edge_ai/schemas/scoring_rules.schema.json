@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "score_model", "absence_rules", "company_score_aggregation", "separate_status_dimensions"],
+  "properties": {
+    "schema_version": {"const": "1.10.0"},
+    "score_model": {"type": "object", "required": ["name", "maximum", "dimensions"], "additionalProperties": true},
+    "absence_rules": {"type": "object", "required": ["no_edge_deployment_evidence", "onnx_or_code_generation_missing"], "additionalProperties": true},
+    "company_score_aggregation": {"type": "object", "required": ["base_score", "maximum_company_score"], "additionalProperties": true},
+    "separate_status_dimensions": {"type": "object", "required": ["deployment_readiness", "evidence_confidence", "commercial_toolchain_status"], "additionalProperties": true}
+  },
+  "additionalProperties": false
+}

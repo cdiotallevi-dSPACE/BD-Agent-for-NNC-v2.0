@@ -1,0 +1,42 @@
+schema_version: "2.0"
+mapping_rules:
+  - mapping_rule_id: nn_deployment_to_nnc
+    target_company_side:
+      required_entity_ids: [neural_network, convolutional_neural_network, recurrent_neural_network, transformer_model, autoencoder, multi_layer_perceptron, onnx_model]
+    neutral_need_side:
+      engineering_need_ids: [trained_model_handover, deterministic_embedded_code, operator_compatibility_assessment]
+    dspace_side:
+      required_capability_ids: [onnx_input_workflow, deterministic_cpp_code_generation]
+      dspace_portfolio_item_id: neural_net_coder
+      supporting_dspace_document_chunk_ids: []
+    applicability_relations: [generate, integrate, deploy]
+  - mapping_rule_id: constrained_target_to_nnc
+    target_company_side:
+      required_entity_ids: [microcontroller, automotive_ecu, bare_metal_or_rtos, low_power_soc, resource_constraints]
+    neutral_need_side:
+      engineering_need_ids: [static_memory_implementation, resource_fit_estimation, cross_silicon_portability]
+    dspace_side:
+      required_capability_ids: [static_memory_behavior, resource_forecasting]
+      dspace_portfolio_item_id: neural_net_coder
+      supporting_dspace_document_chunk_ids: []
+    applicability_relations: [forecast, optimize, deploy]
+  - mapping_rule_id: optimization_to_nnc
+    target_company_side:
+      required_entity_ids: [model_optimization, resource_constraints]
+    neutral_need_side:
+      engineering_need_ids: [post_training_optimization, accuracy_preservation]
+    dspace_side:
+      required_capability_ids: [post_training_optimization, model_code_comparison]
+      dspace_portfolio_item_id: neural_net_coder
+      supporting_dspace_document_chunk_ids: []
+    applicability_relations: [optimize, compare]
+  - mapping_rule_id: verification_to_nnc
+    target_company_side:
+      required_entity_ids: [model_verification, safety_workflow]
+    neutral_need_side:
+      engineering_need_ids: [model_to_code_equivalence, target_execution_verification, safety_oriented_implementation]
+    dspace_side:
+      required_capability_ids: [back_to_back_verification, processor_in_the_loop, safety_oriented_workflow]
+      dspace_portfolio_item_id: neural_net_coder
+      supporting_dspace_document_chunk_ids: []
+    applicability_relations: [verify, validate]

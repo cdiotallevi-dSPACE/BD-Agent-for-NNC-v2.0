@@ -1,0 +1,55 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+
+# Testing and analysis
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Personal editor configuration
+.vscode/
+
+# BDA generated output and logs
+output/
+*.log
+
+# Company registry and workbook backups
+data/Companies.xlsx
+data/backups/
+
+# Proprietary portfolio documents and generated indexes
+data/dspace_portfolio_documents/
+data/dspace_portfolio_runtime/
+
+# Search cache, quota ledger, and runtime state
+data/search_runtime/
+
+# Temporary operating-system and Office files
+tmp/
+*.tmp
+*.bak
+~$*
+Thumbs.db
+.DS_Store

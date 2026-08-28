@@ -1,0 +1,219 @@
+version: 1.12.0
+run_profiles:
+  standard: {}
+  fast_iteration:
+    providers:
+      # Sized to execute bounded application-led web/PDF searches before
+      # supplemental patent-web queries. Patent-native discovery has its own
+      # independent budget below.
+      ddgs: {max_queries: 80, max_results_per_query: 6}
+      semantic_scholar: {max_queries: 3}
+      github: {max_queries: 2}
+      sitemap: {max_files: 1, max_urls: 12}
+      internal_crawler: {max_pages: 6, max_depth: 1}
+      publication_hub: {max_pages: 3, max_depth: 1}
+      pdf_link: {max_documents: 6, maximum_pages_scanned: 60, scan_concurrency: 6, progress_interval_pages: 10}
+    patent_discovery_budget: {maximum_metadata_records_per_assignee: 200, maximum_metadata_records_per_native_source: 200, maximum_pages_per_assignee_source: 4, maximum_full_patents_retrieved_per_company: 12, maximum_replacement_patent_attempts: 12, maximum_family_expansion_records: 30, maximum_citation_expansion_records: 20}
+    patent_full_text_reservations: {electric_machine_thermal_state_estimation: 2, combustion_and_powertrain_neural_control: 1, autonomous_driving_neural_perception: 1, battery_power_capability_and_adaptation: 2, battery_virtual_measurement_and_predictive_control: 1, vehicle_dynamics_learned_estimation: 1, indirect_physical_state_and_virtual_sensing: 1, condition_monitoring_and_prognostics: 1, perception_classification_and_detection: 1, occupant_driver_cabin_sensing: 0, cross_family_highest_ranked: 1}
+    retrieval: {maximum_total_urls: 30, maximum_pdf_documents: 6, maximum_pages_per_pdf: 25, maximum_total_parsed_pdf_pages: 150, download_concurrency: 6, progress_interval_documents: 5}
+    candidate_budget: {maximum_canonical_non_seed_candidates_per_company: 150, maximum_retrieved_non_seed_documents_per_company: 30, maximum_non_seed_candidates_per_host: 40, maximum_low_priority_third_party_pages: 8, maximum_patent_documents_selected: 12}
+patent_discovery:
+  required: true
+  reserved_query_budget_share: 0.20
+  minimum_reserved_query_budget_share: 0.15
+  minimum_independent_queries_per_company: 6
+  application_only_query_required: true
+  providers_in_preference_order: [ddgs, brave, serpapi, serper]
+  fallback_on: [zero_results, provider_failed, rate_limited, transient_error]
+  dedicated_patent_provider_role: supplementary
+  progressive_assignee_discovery: true
+  sibling_classification_search_bounded: true
+  primary_mode: patent_native_assignee_corpus
+  ordinary_web_queries_supplemental_only: true
+  quality_based_fallback: true
+patent_native_sources:
+  google_patents:
+    enabled: true
+    required: true
+    capabilities: [assignee_enumeration, pagination_or_bounded_result_expansion, patent_metadata, full_text_location]
+  justia_patents:
+    enabled: true
+    required: true
+    capabilities: [assignee_pages, pagination, patent_metadata]
+  uspto_patent_data:
+    enabled: true
+    optional: true
+    credential_env: USPTO_API_KEY
+    capabilities: [official_application_metadata, assignee_and_assignment_metadata, cpc_classification]
+  epo_ops:
+    enabled: false
+    optional: true
+patent_discovery_budget:
+  maximum_metadata_records_per_assignee: 1000
+  maximum_metadata_records_per_native_source: 750
+  maximum_pages_per_assignee_source: 20
+  maximum_results_per_supplemental_web_query: 50
+  maximum_pages_per_supplemental_web_query: 5
+  maximum_full_patents_retrieved_per_company: 80
+  maximum_replacement_patent_attempts: 80
+  maximum_family_expansion_records: 200
+  maximum_citation_expansion_records: 100
+uspto_patent_file_wrapper:
+  endpoint: https://api.uspto.gov/api/v1/patent/applications/search
+  assignee_query_template: '(assignmentBag.assigneeBag.assigneeNameText:"{assignee}" OR applicationMetaData.applicantBag.applicantNameText:"{assignee}")'
+  page_size: 100
+patent_full_text_reservations:
+  electric_machine_thermal_state_estimation: 8
+  combustion_and_powertrain_neural_control: 6
+  autonomous_driving_neural_perception: 8
+  battery_power_capability_and_adaptation: 10
+  battery_virtual_measurement_and_predictive_control: 20
+  vehicle_dynamics_learned_estimation: 10
+  indirect_physical_state_and_virtual_sensing: 6
+  condition_monitoring_and_prognostics: 4
+  perception_classification_and_detection: 4
+  occupant_driver_cabin_sensing: 4
+  cross_family_highest_ranked: 0
+engineering_publisher_profiles:
+  sae:
+    domains: [saemobilus.sae.org, sae.org]
+    preferred_search_paths: [saemobilus.sae.org/papers]
+    source_category: professional_applied_ml_publication
+    retrieval_priority_bonus: 20
+    atomic_queries_required: true
+    zero_result_provider_fallback: true
+  mathworks:
+    domains: [mathworks.com]
+    preferred_search_paths: [/company/user_stories/, /content/dam/, /company/events/, /solutions/]
+    retrieval_priority_bonus: 15
+candidate_retrieval_priority:
+  explicit_target_company_author_affiliation_in_search_metadata: 35
+  professional_applied_ml_publication: 30
+  primary_technical_paper_or_presentation: 25
+  configured_engineering_ecosystem_publisher: 20
+  concrete_applied_ml_use_case: 20
+  real_time_physical_system_or_telematics_context: 15
+search_cost_policy:
+  mode: zero_cost_only
+  paid_overage_allowed: false
+  automatic_plan_upgrade_allowed: false
+  automatic_credit_purchase_allowed: false
+  provider_side_spend_limit_required_when_available: true
+  fail_closed_before_charge: true
+  persist_usage_ledger: true
+  reserve_percent_default: 10
+  ledger_path: data/search_runtime/provider_quota_ledger.json
+  account_state_path: data/search_runtime/provider_account_state.json
+providers:
+  ddgs:
+    enabled: true
+    required: true
+    region: us-en
+    safesearch: moderate
+    backend: auto
+    max_queries: 120
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  brave:
+    enabled: true
+    required: false
+    activation_mode: auto
+    credential_env: BRAVE_SEARCH_API_KEY
+    credential_aliases: [BRAVE_API_KEY]
+    endpoint: https://api.search.brave.com/res/v1/web/search
+    period_type: calendar_month
+    advertised_free_allowance: 1000
+    configured_hard_cap: 900
+    max_queries: 6
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  serpapi:
+    enabled: true
+    required: false
+    activation_mode: auto
+    credential_env: SERPAPI_API_KEY
+    credential_aliases: [SERPAPI_KEY]
+    endpoint: https://serpapi.com/search.json
+    period_type: calendar_month
+    advertised_free_allowance: 250
+    configured_hard_cap: 225
+    max_queries: 3
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  serper:
+    enabled: true
+    required: false
+    activation_mode: auto
+    credential_env: SERPER_API_KEY
+    endpoint: https://google.serper.dev/search
+    period_type: nonrenewing
+    advertised_free_allowance: 2500
+    configured_hard_cap: 2250
+    max_queries: 4
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  semantic_scholar:
+    enabled: true
+    required: false
+    activation_mode: enabled
+    max_queries: 8
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  github:
+    enabled: true
+    required: false
+    activation_mode: auto
+    credential_env: GITHUB_TOKEN
+    max_queries: 8
+    max_results_per_query: 10
+    request_timeout_seconds: 15
+  patent:
+    enabled: true
+    required: false
+    max_queries: 5
+    max_results_per_query: 10
+  sitemap:
+    enabled: true
+    required: true
+    max_files: 3
+    max_urls: 30
+  internal_crawler:
+    enabled: true
+    required: true
+    max_pages: 10
+    max_depth: 1
+  publication_hub:
+    enabled: true
+    required: true
+    max_pages: 5
+    max_depth: 1
+  pdf_link:
+    enabled: true
+    required: true
+    max_documents: 15
+    maximum_pages_scanned: 200
+    scan_concurrency: 8
+    progress_interval_pages: 20
+    request_timeout_seconds: 12
+retrieval:
+  maximum_total_urls: 80
+  maximum_pdf_documents: 20
+  maximum_pages_per_pdf: 50
+  maximum_total_parsed_pdf_pages: 500
+  max_download_bytes: 52428800
+  download_concurrency: 6
+  progress_interval_documents: 10
+candidate_budget:
+  maximum_canonical_non_seed_candidates_per_company: 500
+  maximum_retrieved_non_seed_documents_per_company: 60
+  maximum_non_seed_candidates_per_host: 120
+  maximum_career_pages_per_company: 60
+  maximum_low_priority_third_party_pages: 40
+  persist_dropped_candidate_summary: true
+  maximum_patent_documents_selected: 20
+seed_policy:
+  explicit_seeds_mandatory: true
+  protect_valid_seeds_for_retrieval: true
+  maximum_explicit_seed_entries_per_company: 100
+  exempt_protected_seeds_from_host_caps: true
+  exempt_protected_seeds_from_general_candidate_cap: true

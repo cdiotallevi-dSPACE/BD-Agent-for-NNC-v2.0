@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "company_name",
+    "portfolio_supplier_name",
+    "assessment_title",
+    "executive_summary",
+    "overall_opportunity",
+    "technology_and_engineering_context",
+    "identified_needs",
+    "dspace_portfolio_recommendations",
+    "key_information_gaps",
+    "qualification_questions",
+    "recommended_next_actions",
+    "closing_assessment"
+  ],
+  "properties": {
+    "company_name": {"type": "string"},
+    "portfolio_supplier_name": {"const": "dSPACE GmbH"},
+    "assessment_title": {"type": "string"},
+    "executive_summary": {"type": "string"},
+    "overall_opportunity": {"type": "string"},
+    "technology_and_engineering_context": {"type": "string"},
+    "identified_needs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["need", "status", "explanation", "supporting_evidence_ids"],
+        "properties": {
+          "need": {"type": "string"},
+          "status": {"enum": ["confirmed_project_need", "strong_inferred_need", "plausible_inferred_need"]},
+          "explanation": {"type": "string"},
+          "supporting_evidence_ids": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "dspace_portfolio_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dspace_portfolio_item_id", "dspace_commercial_name", "owner", "relationship_to_target", "recommendation", "assessment", "supporting_company_evidence_ids", "supporting_dspace_document_chunk_ids", "limitations_and_prerequisites", "customer_validation_required"],
+        "properties": {
+          "dspace_portfolio_item_id": {"type": "string"},
+          "dspace_commercial_name": {"type": "string"},
+          "owner": {"const": "dSPACE GmbH"},
+          "relationship_to_target": {"const": "applicable_to_target_company_engineering_needs"},
+          "recommendation": {"enum": ["strong", "moderate", "conditional", "not_recommended"]},
+          "assessment": {"type": "string"},
+          "supporting_company_evidence_ids": {"type": "array", "items": {"type": "string"}},
+          "supporting_dspace_document_chunk_ids": {"type": "array", "items": {"type": "string"}},
+          "limitations_and_prerequisites": {"type": "array", "items": {"type": "string"}},
+          "customer_validation_required": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "key_information_gaps": {"type": "array", "items": {"type": "string"}},
+    "qualification_questions": {"type": "array", "items": {"type": "string"}},
+    "recommended_next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["priority", "action", "objective"],
+        "properties": {
+          "priority": {"enum": ["high", "medium", "low"]},
+          "action": {"type": "string"},
+          "objective": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "closing_assessment": {"type": "string"}
+  },
+  "additionalProperties": false
+}

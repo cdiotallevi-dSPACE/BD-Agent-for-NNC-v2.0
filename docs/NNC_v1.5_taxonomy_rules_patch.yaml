@@ -1,0 +1,130 @@
+patch_version: 1.5.0
+purpose: Prioritize target-company professional technical publications containing concrete applied ML use cases, especially
+  when publisher-specific DDGS queries return zero results.
+source_categories:
+  professional_applied_ml_publication:
+    description: Professional/peer-reviewed technical paper, conference paper, proceedings article, presentation, application
+      paper, or engineering case study with target-company attribution and a concrete applied ML/data-driven use case.
+    retrieval_priority: high
+    relevant_evidence_eligible: true
+    mapping_eligible_by_category_alone: false
+    score_contribution_by_category_alone: 0
+use_case_discovery_lexicon:
+  indirect_physical_state_and_virtual_sensing:
+    priority_by_industry:
+      automotive: highest
+      off_highway: highest
+      industrial: high
+      aerospace: high
+      energy: medium
+    terms:
+    - indirect sensing
+    - indirect measurement
+    - virtual sensor
+    - soft sensor
+    - sensorless
+    - sensorless estimation
+    - state estimation
+    - operating condition
+    - operating-condition recognition
+    - condition recognition
+    - loading condition
+    - vehicle loading condition
+    - vehicle load estimation
+    - payload estimation
+    - vehicle mass estimation
+    - driving behavior
+    - telematics based inference
+    - telematics machine learning
+    - low-cost sensing
+    technical_action_terms:
+    - recognize
+    - recognition
+    - detect
+    - detection
+    - estimate
+    - estimation
+    - infer
+    - inference
+    - classify
+    - classification
+    - predict
+    - prediction
+professional_publication_atomic_queries:
+  sae:
+  - site:saemobilus.sae.org/papers "{company_research_affiliation}" "machine learning"
+  - site:saemobilus.sae.org/papers "{company_legal_name}" "machine learning"
+  - site:saemobilus.sae.org/papers {company_search_brand} telematics
+  - site:saemobilus.sae.org/papers {company_search_brand} ADAS
+  - site:saemobilus.sae.org/papers {company_search_brand} "loading condition"
+  - site:saemobilus.sae.org/papers {company_search_brand} "state estimation"
+  - '"{company_research_affiliation}" telematics "machine learning"'
+  - '"{company_research_affiliation}" "supervised machine learning"'
+  - '"{company_research_affiliation}" SAE "machine learning"'
+query_generation_rules:
+  emit_each_atomic_query_independently: true
+  avoid_nested_boolean_for_mandatory_publisher_queries: true
+  company_research_affiliation_may_be_learned_from_validated_sources_or_company_profile: true
+  company_specific_seed_required: false
+professional_publication_provider_policy:
+  providers_in_preference_order:
+  - ddgs
+  - brave
+  - serpapi
+  - serper
+  minimum_providers_with_usable_results: 1
+  retry_on:
+  - provider_failed
+  - zero_results
+  - rate_limited
+  - transient_error
+  completed_no_results_only_after_all_eligible_providers_exhausted: true
+  semantic_scholar_may_supplement_but_not_be_sole_route: true
+engineering_publisher_profiles:
+  sae:
+    domains:
+    - saemobilus.sae.org
+    - sae.org
+    preferred_search_paths:
+    - saemobilus.sae.org/papers
+    source_category: professional_applied_ml_publication
+    retrieval_priority_bonus: 20
+    atomic_queries_required: true
+    zero_result_provider_fallback: true
+candidate_retrieval_priority_additions:
+  explicit_target_company_author_affiliation_in_search_metadata: 35
+  professional_applied_ml_publication: 30
+  primary_technical_paper_or_presentation: 25
+  configured_engineering_ecosystem_publisher: 20
+  concrete_applied_ml_use_case: 20
+  real_time_physical_system_or_telematics_context: 15
+classification_rule:
+  if:
+    target_company_attribution: established
+    source_category: professional_applied_ml_publication
+    applied_ml_activity: confirmed
+    neural_model: unconfirmed
+    embedded_execution: unconfirmed
+  then:
+    relevance_class: nnc_opportunity_evidence
+    relevant_evidence: true
+    mapping_eligible: false
+    score_contribution: 0
+regression_fixture:
+  fixture_id: MAHINDRA-FN-SAE-VEHICLE-LOADING-ML
+  url: https://saemobilus.sae.org/papers/methodology-recognize-vehicle-loading-condition-indirect-method-using-telematics-machine-learning-2019-26-0019
+  seed_url_required: false
+  expected:
+    candidate_discovered: true
+    candidate_selected_for_retrieval: true
+    company_attribution: established
+    source_category: professional_applied_ml_publication
+    use_case_class:
+    - indirect_physical_state_and_virtual_sensing
+    - vehicle_operating_condition_recognition
+    neural_model_status: unconfirmed
+    embedded_execution_status: unconfirmed
+    relevance_class: nnc_opportunity_evidence
+    relevant_evidence: true
+    mapping_eligible: false
+    score_contribution: 0

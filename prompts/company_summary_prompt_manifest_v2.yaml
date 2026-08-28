@@ -1,0 +1,20 @@
+prompt_bundle:
+  bundle_id: company_summary_v2.0
+  system_prompt:
+    path: prompts/company_summary_system_v2.txt
+    version: "2.0.0"
+    sha256: ee369e5771f257aecf4b4d0b6fbaebe2a51823015c9df0bad298276ff28211f5
+  user_template:
+    path: prompts/company_summary_user_template_v2.txt
+    version: "2.0.0"
+    sha256: cb1e296c2e1bdedb41160cd2ef8870d6b905be5b18e1d26a8914dad249c4ade0
+  output_schema:
+    path: prompts/company_summary_output_schema_v2.json
+    version: "2.0.0"
+    sha256: c38010ee327395b7e0560bf2c9c36d8fa124992fb6761b0600fc0a4f3b7853c9
+  ownership_contract:
+    path: prompts/ownership_contract_v1.yaml
+    version: "1.0.0"
+    sha256: 36180bbdfc0bafdc999aad2f1dce4c12634c93307f6b7d06924947d292262ffe
+  compatible_models:
+    - gemma2:9b

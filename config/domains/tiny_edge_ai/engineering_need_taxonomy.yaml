@@ -1,0 +1,15 @@
+schema_version: "2.0"
+engineering_needs:
+  - {engineering_need_id: trained_model_handover, entity_scope: neutral_engineering_need, name: Trained-model handover from AI to embedded software}
+  - {engineering_need_id: deterministic_embedded_code, entity_scope: neutral_engineering_need, name: Deterministic embedded C/C++ generation}
+  - {engineering_need_id: static_memory_implementation, entity_scope: neutral_engineering_need, name: Static-memory implementation}
+  - {engineering_need_id: resource_fit_estimation, entity_scope: neutral_engineering_need, name: RAM ROM stack and execution-time forecasting}
+  - {engineering_need_id: post_training_optimization, entity_scope: neutral_engineering_need, name: Post-training model optimization}
+  - {engineering_need_id: accuracy_preservation, entity_scope: neutral_engineering_need, name: Accuracy preservation across model transformation}
+  - {engineering_need_id: model_to_code_equivalence, entity_scope: neutral_engineering_need, name: Model-to-code equivalence verification}
+  - {engineering_need_id: target_execution_verification, entity_scope: neutral_engineering_need, name: Processor-in-the-loop target verification}
+  - {engineering_need_id: safety_oriented_implementation, entity_scope: neutral_engineering_need, name: Safety-oriented embedded implementation}
+  - {engineering_need_id: standalone_ai_to_c_workflow, entity_scope: neutral_engineering_need, name: Stand-alone AI-to-C workflow}
+  - {engineering_need_id: targetlink_integration, entity_scope: neutral_engineering_need, name: TargetLink workflow integration}
+  - {engineering_need_id: cross_silicon_portability, entity_scope: neutral_engineering_need, name: Portable code across embedded target families}
+  - {engineering_need_id: operator_compatibility_assessment, entity_scope: neutral_engineering_need, name: ONNX operator and opset compatibility assessment}

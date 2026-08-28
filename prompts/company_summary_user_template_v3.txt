@@ -1,0 +1,12 @@
+Create the assessment JSON for the target company using this deterministic context.
+Before writing, rank the identified use cases by use_case_score. Build the narrative around
+the strongest use case and then the next materially distinct scored use cases. Do not copy
+or enumerate generic product features from selected_dspace_chunks. Use those chunks only
+to ground a concise capability statement tied directly to a use-case need or qualification
+gap. The overall_assessment must be 100 to 300 words. Aim for 160 to
+220 words, count the words before returning the JSON, and revise any response outside the
+100-to-300-word hard limits.
+{{COMPANY_CONTEXT_JSON}}
+
+The response must validate against this schema:
+{{OUTPUT_SCHEMA_JSON}}

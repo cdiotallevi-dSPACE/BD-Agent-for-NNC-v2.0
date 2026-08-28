@@ -1,0 +1,3 @@
+schema_version: "2.0"
+domain_layers: [application_environment, converter_topology, semiconductor_device, voltage_class, power_class, switching_characteristics, control_and_modulation, validation_activity, validation_standard]
+
