@@ -56,12 +56,12 @@ def consolidate_use_case_mappings(mappings:list[dict], maximum:int=3)->list[dict
 
 
 def calculate_cycle_source_counts(sources:list[dict],relevant:dict)->dict[str,int]:
-    """Calculate per-company cycle counts; approved means promoted to Relevant Evidence."""
+    """Calculate cycle counts; approved includes use-case and company-background evidence."""
     failed={"retrieval_failed","parse_failed","not_attempted","pdf_document_budget_excluded","pdf_page_budget_excluded"}
     retrieved=[source for source in sources
                if source.get("retrieval_status") not in failed and not source.get("retrieval_error")
                and bool(source.get("content_hash"))]
-    relevant_items=list(relevant.get("relevant_evidence",[]))
+    relevant_items=[*relevant.get("relevant_evidence",[]),*relevant.get("company_background_evidence",[])]
     approved_ids={item.get("source_id") for item in relevant_items if item.get("source_id")}
     source_by_id={source.get("source_id"):source for source in sources}
     retrieved_pdfs={source["source_id"] for source in retrieved if source.get("source_type")=="pdf"}
@@ -103,12 +103,10 @@ def normalize_llm_list_fields(summary: dict) -> tuple[dict, dict]:
     if isinstance(actions,list):
         normalized_actions=[]
         for item in actions:
-            if isinstance(item,dict) and isinstance(item.get("action"),str) and not item["action"].strip():
+            if isinstance(item,str) and not item.strip():
                 normalization["removed_empty_recommended_actions"]+=1
                 continue
-            if isinstance(item,dict):
-                item={**item,"action":item.get("action","").strip() if isinstance(item.get("action"),str) else item.get("action")}
-            normalized_actions.append(item)
+            normalized_actions.append(item.strip() if isinstance(item,str) else item)
         summary["recommended_next_actions"]=normalized_actions
     normalization["applied"]=bool(normalization["removed_empty_information_gaps"] or normalization["removed_empty_recommended_actions"])
     return summary,normalization
@@ -419,7 +417,10 @@ class Pipeline:
         eligible=sorted((x["dspace_applicability_score"]/100 for x in assessed if x["hard_rule_passed"]),reverse=True)
         strongest=eligible[0] if eligible else 0.0; second=eligible[1] if len(eligible)>1 else 0.0
         evidence_quality=(sum(e["confidence"] for e in eligible_evidence)/len(eligible_evidence)) if eligible_evidence else 0.0
-        company_scoring = aggregate_company_scores(accepted)
+        detailed_mappings=list(mappings)
+        relevant=build_relevant_evidence(accepted,sources,detailed_mappings)
+        relevant_source_ids={item["source_id"] for item in relevant["relevant_evidence"]}
+        company_scoring = aggregate_company_scores([item for item in accepted if item.get("source_id") in relevant_source_ids])
         legacy_rating, legacy_components = score_nnc_applicability(gates,evidence_quality)
         rating = company_scoring["overall_product_match"] if company_scoring["use_cases"] else legacy_rating
         score_components = {"v1_10_company_scoring": company_scoring, "legacy_fallback": legacy_components}
@@ -429,8 +430,6 @@ class Pipeline:
         enrich_ownership(final,portfolio_profiles)
         final["target_company"]["official_domain"]=official_domain
         final["target_company"]["country"]=country or "Not specified"
-        detailed_mappings=list(mappings)
-        relevant=build_relevant_evidence(accepted,sources,detailed_mappings)
         if relevant["source_count"]==0:
             rating=0
             rating_detail.update({"use_case_scores":[],"opportunity_breadth_bonus":0,"unrounded_score":0,
@@ -441,8 +440,10 @@ class Pipeline:
         final["applicability_mappings"]=mappings
         final["search_coverage"]={"patents":discovery["report"].get("patent_search_coverage",{})}
         final["cycle_source_counts"]=calculate_cycle_source_counts(sources,relevant)
-        self._progress(f"Mapping completed: {len(mappings)} mappings; {relevant['source_count']} Relevant Evidence sources; provisional score {rating}/100.")
-        final["report_data"]={"relevant_evidence_source_ids":[item["source_id"] for item in relevant["relevant_evidence"]],"relevant_evidence_count":relevant["source_count"],"applicability_mapping_ids":[item["mapping_id"] for item in mappings],"applicability_mapping_count":len(mappings)}
+        self._progress(f"Mapping completed: {len(mappings)} mappings; {relevant['source_count']} Relevant Evidence sources; {relevant['background_source_count']} Company Background Evidence sources; provisional score {rating}/100.")
+        final["report_data"]={"relevant_evidence_source_ids":[item["source_id"] for item in relevant["relevant_evidence"]],"relevant_evidence_count":relevant["source_count"],
+            "company_background_evidence_source_ids":[item["source_id"] for item in relevant["company_background_evidence"]],"company_background_evidence_count":relevant["background_source_count"],
+            "applicability_mapping_ids":[item["mapping_id"] for item in mappings],"applicability_mapping_count":len(mappings)}
         model_cfg=load_yaml(self.cfg/"runtime/models.yaml")
         try:
             prompt_bundle=load_prompt_bundle(self.root,FINAL_REPORT_MODEL)
@@ -472,7 +473,7 @@ class Pipeline:
         flags=list(final.get("degradation_flags",[]))
         if discovery["report"]["provider_errors"]: flags.append("provider_errors")
         flags.extend(discovery["report"].get("degradation_flags",[]))
-        manifest={"run_id":final["run_id"],"cycle_id":cycle_id,"status":discovery["report"]["status"],"execution_status":"completed","quality_status":"degraded" if flags else "clean","degradation_flags":sorted(set(flags)),"application_version":"2.0.0","specification_version":SPECIFICATION_VERSION,"design_document_version":DESIGN_DOCUMENT_VERSION,"domain_id":"tiny_edge_ai","portfolio_item_id":"neural_net_coder","created_at":utc_now(),"accepted_evidence_count":len(accepted),"rejected_evidence_count":len(rejected),"background_evidence_count":len(background),"established_company_source_count":sum(a["company_attribution_status"]=="established" for a in attributions),"passed_context_bundle_count":len(context_bundles),"relevant_evidence_count":relevant["source_count"],"applicability_mapping_count":len(mappings),"cycle_source_counts":final["cycle_source_counts"],"report_filename":report_path.name,"report_generated_at":final["report_data"]["report_generated_at"],"prompt_bundle_id":effective_prompt_manifest.get("prompt_bundle_id"),"prompt_assets":effective_prompt_manifest.get("assets",{}),"llm_context_metrics":context_artifact["metrics"],"search_execution_summary":discovery["report"]["metrics"],"search_provider_errors":discovery["report"]["provider_errors"],"previous_score":previous_score,"newly_calculated_score":rating,"score_change":rating-previous_score if previous_score is not None else None,"overall_opportunity_score":rating,"embedding_provider":"ollama","embedding_model":EMBEDDING_MODEL,"llm_provider":"ollama","llm_model":FINAL_REPORT_MODEL,"llm_summary_status":final["llm_summary_status"],"narrative_source":final["narrative_source"],"llm_fallback_used":final["llm_fallback_used"],"llm_failure_code":final.get("llm_failure_code"),"run_directory":str(out)}
+        manifest={"run_id":final["run_id"],"cycle_id":cycle_id,"status":discovery["report"]["status"],"execution_status":"completed","quality_status":"degraded" if flags else "clean","degradation_flags":sorted(set(flags)),"application_version":"2.0.0","specification_version":SPECIFICATION_VERSION,"design_document_version":DESIGN_DOCUMENT_VERSION,"domain_id":"tiny_edge_ai","portfolio_item_id":"neural_net_coder","created_at":utc_now(),"accepted_evidence_count":len(accepted),"rejected_evidence_count":len(rejected),"background_evidence_count":len(background),"company_background_evidence_count":relevant["background_source_count"],"established_company_source_count":sum(a["company_attribution_status"]=="established" for a in attributions),"passed_context_bundle_count":len(context_bundles),"relevant_evidence_count":relevant["source_count"],"applicability_mapping_count":len(mappings),"cycle_source_counts":final["cycle_source_counts"],"report_filename":report_path.name,"report_generated_at":final["report_data"]["report_generated_at"],"prompt_bundle_id":effective_prompt_manifest.get("prompt_bundle_id"),"prompt_assets":effective_prompt_manifest.get("assets",{}),"llm_context_metrics":context_artifact["metrics"],"search_execution_summary":discovery["report"]["metrics"],"search_provider_errors":discovery["report"]["provider_errors"],"previous_score":previous_score,"newly_calculated_score":rating,"score_change":rating-previous_score if previous_score is not None else None,"overall_opportunity_score":rating,"embedding_provider":"ollama","embedding_model":EMBEDDING_MODEL,"llm_provider":"ollama","llm_model":FINAL_REPORT_MODEL,"llm_summary_status":final["llm_summary_status"],"narrative_source":final["narrative_source"],"llm_fallback_used":final["llm_fallback_used"],"llm_failure_code":final.get("llm_failure_code"),"run_directory":str(out)}
         atomic_json(out/f"{slug}_{stamp}_run_manifest.json",manifest)
         with (self.root/"output/run_registry.jsonl").open("a",encoding="utf-8") as f: f.write(json.dumps(manifest,separators=(",",":"))+"\n")
         self._progress(f"Completed {company}. Report: {report_path.name}")
@@ -491,7 +492,7 @@ class Pipeline:
             summary={"executive_summary":f"The deterministic assessment found no scored Neural Net Coder use cases for {final['company_name']}. No company-specific Relevant Evidence passed all attribution and technical decision gates, so no product-fit narrative or unsupported application claim is generated.",
                 "overall_assessment":f"The deterministic assessment found no scored Neural Net Coder use cases for {final['company_name']}. No company-specific Relevant Evidence passed all attribution and technical decision gates, so no product-fit narrative or unsupported application claim is generated.",
                 "key_information_gaps":["No qualified company-specific neural application evidence passed the complete decision pipeline."],
-                "recommended_next_actions":[{"action":"Review patent retrieval and attribution failures before reassessing product fit.","priority":"high"}],
+                "recommended_next_actions":["Review patent retrieval and attribution failures before reassessing product fit."],
                 "next_actions":["Review patent retrieval and attribution failures before reassessing product fit."]}
             narrative_validation={"overall_status":"skipped_no_scored_evidence","structural_validation":{"status":"deterministic_guard","failure_code":failure_code},"truncation_validation":{"status":"not_applicable","failure_code":None},"ownership_validation":{"status":"not_run","failure_code":None,"violations":[]},"fallback_used":True,"narrative_source":"deterministic_template"}
             (out/f"{slug}_{stamp}_llm_raw_response.txt").write_text("",encoding="utf-8")
@@ -545,7 +546,7 @@ class Pipeline:
                     raise jsonschema.ValidationError("overall_assessment must contain 100 to 300 words")
                 if any(len(item.split())>25 for item in summary["key_information_gaps"]):
                     raise jsonschema.ValidationError("information gaps must contain at most 25 words")
-                if any(len(item["action"].split())>30 for item in summary["recommended_next_actions"]):
+                if any(len(item.split())>30 for item in summary["recommended_next_actions"]):
                     raise jsonschema.ValidationError("actions must contain at most 30 words")
             except jsonschema.ValidationError as exc:
                 narrative_validation.update({"structural_validation":{"status":"invalid_schema","failure_code":"llm_invalid_schema","schema_error":exc.message},"ownership_validation":{"status":"not_run_due_to_invalid_schema","failure_code":None,"violations":[]},"response_normalization":normalization})
@@ -557,7 +558,7 @@ class Pipeline:
                 narrative_validation.update({"overall_status":"fallback_used","fallback_used":True,"narrative_source":"deterministic_template"})
                 raise ValueError(ownership["failure_code"])
             summary["executive_summary"]=summary["overall_assessment"]
-            summary["next_actions"]=[item["action"] for item in summary.get("recommended_next_actions",[])]
+            summary["next_actions"]=list(summary.get("recommended_next_actions",[]))
             status="valid"
         except Exception as exc:
             status="skipped_prompt_budget" if str(exc)=="llm_prompt_budget_exceeded" else "timeout" if isinstance(exc,httpx.ReadTimeout) else "http_error" if isinstance(exc,httpx.HTTPStatusError) else "unavailable" if isinstance(exc,httpx.RequestError) else "invalid_response"

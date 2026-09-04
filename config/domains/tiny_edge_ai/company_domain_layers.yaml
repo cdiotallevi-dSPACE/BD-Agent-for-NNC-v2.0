@@ -1,3 +1,5 @@
 schema_version: "2.0"
-domain_layers: [application_environment, converter_topology, semiconductor_device, voltage_class, power_class, switching_characteristics, control_and_modulation, validation_activity, validation_standard]
-
+# Validation inventory for the domain_layer values currently present in
+# company_domain_taxonomy.yaml. Runtime extraction loads the taxonomy file
+# directly; this file is not a separate runtime classifier.
+domain_layers: [model, deployment_workflow, opportunity, deployment_target, resource_constraint, optimization, verification, organization]

@@ -14,6 +14,7 @@ dist/
 
 # Testing and analysis
 .pytest_cache/
+.pytest_tmp_*/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -44,6 +45,7 @@ data/dspace_portfolio_documents/
 data/dspace_portfolio_runtime/
 
 # Search cache, quota ledger, and runtime state
+data/cache/
 data/search_runtime/
 
 # Temporary operating-system and Office files

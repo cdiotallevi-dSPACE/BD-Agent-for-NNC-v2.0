@@ -73,5 +73,6 @@ def test_mahindra_sae_fixture_classifies_as_score_neutral_opportunity():
     assert any("indirect_physical_state_and_virtual_sensing" in e["use_case_classes"] for e in opportunities)
     relevant=build_relevant_evidence(result["accepted"],[{"source_id":"SRC-0001","url":URL,"title":doc["title"],
         "source_type":"html","source_domain_class":"third_party_analytics"}],[])
-    assert relevant["source_count"]==1
-    assert relevant["relevant_evidence"][0]["source_category"]=="professional_applied_ml_publication"
+    assert relevant["source_count"]==0
+    assert relevant["background_source_count"]==1
+    assert relevant["company_background_evidence"][0]["source_category"]=="professional_applied_ml_publication"

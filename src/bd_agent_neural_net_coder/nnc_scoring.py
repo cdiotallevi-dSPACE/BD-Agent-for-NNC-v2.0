@@ -130,7 +130,9 @@ def score_patent_use_case(analysis: dict, text: str) -> dict:
     neural_points = NEURAL_LEVELS[neural_level]
     edge_points = EDGE_LEVELS[edge_level]
     workflow_points = WORKFLOW_LEVELS[workflow_level]
-    total = min(100, neural_points + edge_points + workflow_points)
+    score_eligible = neural_points > 0 or workflow_points > 0
+    score_exclusion_reason = None if score_eligible else "edge_context_without_neural_or_workflow_signal"
+    total = min(100, neural_points + edge_points + workflow_points) if score_eligible else 0
     if neural_points >= 45 and edge_points >= 15 and workflow_points >= 12:
         mapping_class = "nnc_maximum_workflow_fit"
     elif neural_points >= 45 and edge_points >= 15:
@@ -145,6 +147,8 @@ def score_patent_use_case(analysis: dict, text: str) -> dict:
         "edge_deployment_intent": {"classification": edge_level, "points": edge_points},
         "deployment_workflow_fit": {"classification": workflow_level, "points": workflow_points},
         "use_case_score": total,
+        "score_eligible": score_eligible,
+        "score_exclusion_reason": score_exclusion_reason,
         "relevance_band": relevance_band(total),
         "mapping_class": mapping_class,
         "mapping_eligible": mapping_eligible,
@@ -162,7 +166,10 @@ def aggregate_company_scores(evidence: list[dict]) -> dict:
     by_case: dict[str, list[dict]] = defaultdict(list)
     for item in evidence:
         scoring = item.get("nnc_use_case_scoring") or {}
-        if not scoring:
+        score_eligible=scoring.get("score_eligible",int(scoring.get("use_case_score",0)) > 0)
+        if (not scoring or score_eligible is not True or int(scoring.get("use_case_score",0)) <= 0
+                or item.get("relevant_evidence_eligible") is False
+                or item.get("relevance_class") == "contextual_company_evidence"):
             continue
         cases = [c for c in item.get("use_case_classes",[]) if c and not str(c).upper().startswith("SRC-")]
         if not cases:
@@ -176,7 +183,7 @@ def aggregate_company_scores(evidence: list[dict]) -> dict:
         ranked=sorted(items,key=lambda x:-int(x["nnc_use_case_scoring"]["use_case_score"]))
         use_cases.append({"use_case_id": case_id, **best["nnc_use_case_scoring"],
                           "supporting_evidence_ids": sorted({x["evidence_id"] for x in items}),
-                          "supporting_source_ids":list(dict.fromkeys(x.get("source_id") for x in ranked if x.get("source_id")))[:3]})
+                          "supporting_source_ids":list(dict.fromkeys(x.get("source_id") for x in ranked if x.get("source_id")))})
     use_cases.sort(key=lambda x: (-x["use_case_score"], x["use_case_id"]))
     base = use_cases[0]["use_case_score"] if use_cases else 0
     strong_count = sum(x["use_case_score"] >= 40 for x in use_cases)

@@ -27,6 +27,8 @@ accelerator, or certification guarantee. Do not guarantee ONNX operator, target,
 accelerator, safety, performance, power, or certification compatibility.
 Use at most four information gaps and four actions. Each gap must be at most 25 words and
 each action at most 30 words.
+Return recommended_next_actions as a JSON array of action strings, ordered from highest
+to lowest priority. Do not return action objects or separate priority fields.
 If there are no information gaps, return key_information_gaps as the empty array [].
 Never put empty strings, whitespace-only strings, null values, or placeholder entries in
 key_information_gaps or recommended_next_actions. If there are no actions, return [].

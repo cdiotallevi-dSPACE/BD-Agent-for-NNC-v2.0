@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import jsonschema
+
 from bd_agent_neural_net_coder.llm_response_validator import detect_truncation, parse_json_without_repair
 from bd_agent_neural_net_coder.pipeline import normalize_llm_list_fields
 from bd_agent_neural_net_coder.llm_context_builder import fit_complete_prompt
@@ -35,18 +37,38 @@ def test_empty_gemma_list_items_are_safely_normalized_before_validation():
     summary={
         "key_information_gaps":["", "   ", " Confirm target processor. "],
         "recommended_next_actions":[
-            {"action":"  ","priority":"low"},
-            {"action":" Confirm the deployment target. ","priority":"high"},
+            "  ",
+            " Confirm the deployment target. ",
         ],
     }
     normalized,audit=normalize_llm_list_fields(summary)
     assert normalized["key_information_gaps"]==["Confirm target processor."]
-    assert normalized["recommended_next_actions"]==[{"action":"Confirm the deployment target.","priority":"high"}]
+    assert normalized["recommended_next_actions"]==["Confirm the deployment target."]
     assert audit=={
         "applied":True,
         "removed_empty_information_gaps":2,
         "removed_empty_recommended_actions":1,
     }
+
+
+def test_recommended_actions_are_priority_ordered_strings():
+    root=Path(__file__).resolve().parents[2]
+    schema=json.loads((root/"prompts"/"company_summary_output_schema_v3.json").read_text(encoding="utf-8"))
+    actions_schema=schema["properties"]["recommended_next_actions"]
+    jsonschema.validate(["Confirm the target processor.", "Request an ONNX model sample."],actions_schema)
+    assert "highest to lowest priority" in actions_schema["description"]
+
+
+def test_recommended_action_objects_are_no_longer_accepted():
+    root=Path(__file__).resolve().parents[2]
+    schema=json.loads((root/"prompts"/"company_summary_output_schema_v3.json").read_text(encoding="utf-8"))
+    actions_schema=schema["properties"]["recommended_next_actions"]
+    try:
+        jsonschema.validate([{"priority":"high","action":"Confirm the target processor."}],actions_schema)
+    except jsonschema.ValidationError:
+        pass
+    else:
+        raise AssertionError("object-form recommended action unexpectedly passed the compact schema")
 
 
 def test_normalizer_does_not_hide_wrong_types_from_schema_validation():

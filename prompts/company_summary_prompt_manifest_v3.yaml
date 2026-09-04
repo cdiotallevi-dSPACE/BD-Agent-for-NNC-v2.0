@@ -2,16 +2,16 @@ prompt_bundle:
   bundle_id: company_summary_v3.0
   system_prompt:
     path: prompts/company_summary_system_v3.txt
-    version: "3.4.0"
-    sha256: 681eea1d546ba75722dba4d35cde0d7f16cfd31fc4e21fd43d76271fc8058d4d
+    version: "3.5.0"
+    sha256: 9fcaecf725e0bfa0b5a4b429b901318ea62d413a41757e7eaf0cf6bd5336c052
   user_template:
     path: prompts/company_summary_user_template_v3.txt
     version: "3.3.0"
     sha256: 5f1876f732437f9fa7f39c0520c1c10a87bcbfeed85c79dadd97873fc4fdac28
   output_schema:
     path: prompts/company_summary_output_schema_v3.json
-    version: "3.2.0"
-    sha256: bae9011c9a4bee7a9d8be39d9366267e3a7cb7ebd0b5646c3f166669158c1174
+    version: "3.3.0"
+    sha256: ab73f1ad1dcafa92e6adc4a2e1e3f74694bb0b62b432d8384bac8550c61a54dc
   ownership_contract:
     path: prompts/ownership_contract_v1.yaml
     version: "1.0.0"

@@ -5,10 +5,36 @@ score_model:
   dimensions:
     company_neural_application:
       maximum_points: 55
+      levels:
+        neural_network_actually_used_for_parameter_estimation: 55
+        neural_network_explicit_operational_embodiment: 50
+        neural_network_explicitly_claimed_for_parameter_estimation: 45
+        neural_network_optional_but_semantically_connected_to_estimator: 35
+        generic_machine_learning_estimator_without_neural_confirmation: 20
+        indirect_physical_estimator_neural_candidate: 15
+        generic_neural_network_mention: 5
+        no_neural_or_machine_learning_method: 0
     edge_deployment_intent:
       maximum_points: 25
+      levels:
+        deployed_on_mcu_ecu_soc_or_edge_ai_device: 25
+        target_edge_hardware_explicitly_selected: 22
+        implementation_on_onboard_controller_explicit: 18
+        real_time_onboard_execution_explicit: 15
+        implementable_on_ecu_or_controller: 10
+        embedded_adjacent_physical_application_only: 5
+        no_edge_deployment_decision_disclosed: 0
     deployment_workflow_fit:
       maximum_points: 20
+      levels:
+        onnx_plus_generated_embedded_code: 20
+        onnx_plus_explicit_edge_deployment: 17
+        generated_c_or_cpp_from_neural_model: 15
+        onnx_model_adoption: 12
+        onnx_exportability_or_compatible_model_handover_confirmed: 10
+        model_conversion_or_embedded_ai_toolchain: 8
+        framework_known_and_likely_exportable: 5
+        no_public_workflow_evidence: 0
 absence_rules:
   no_edge_deployment_evidence:
     relevance_effect: no_edge_bonus
@@ -18,6 +44,11 @@ absence_rules:
     relevance_effect: no_workflow_bonus
     exclusion_effect: none
     score_reset: false
+  edge_only_without_neural_or_workflow_signal:
+    relevance_effect: no_product_fit
+    exclusion_effect: score_ineligible
+    score_reset: true
+    reason_code: edge_context_without_neural_or_workflow_signal
 company_score_aggregation:
   base_score: highest_distinct_use_case_score
   second_distinct_use_case_score_at_least_40: 10

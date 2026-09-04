@@ -28,11 +28,13 @@ def test_mahindra_sae_source_is_opportunity_not_mapping_evidence():
     assert not any(e["mapping_eligibility"]["eligible"] for e in opportunity)
     relevant = build_relevant_evidence(result["accepted"], [{"source_id":"SRC-0001","url":URL,
         "title":doc["title"],"source_type":"html","source_domain_class":"third_party_analytics"}], [])
-    assert relevant["source_count"] == 1
-    item = relevant["relevant_evidence"][0]
+    assert relevant["source_count"] == 0
+    assert relevant["background_source_count"] == 1
+    item = relevant["company_background_evidence"][0]
     assert item["relevance_class"] == "nnc_opportunity_evidence"
     assert item["product_fit_score_contribution"] == 0
     assert not item["mapping_eligible"]
+    assert item["background_reason_code"] == "no_precise_scored_use_case_link"
     assert "not disclosed" in item["description"]
 
 

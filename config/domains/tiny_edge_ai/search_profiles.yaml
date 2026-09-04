@@ -1,3 +1,5 @@
+# DEPRECATED / NOT RUNTIME-LOADED. Runtime profiles `standard` and
+# `fast_iteration` are defined in config/search_providers.yaml.
 schema_version: "2.0"
 profiles:
   default:
@@ -6,4 +8,3 @@ profiles:
     max_runtime_seconds: 900
     global_concurrency: 6
     per_domain_concurrency: 2
-

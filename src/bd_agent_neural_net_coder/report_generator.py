@@ -11,7 +11,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import LongTable, Paragraph, SimpleDocTemplate, Spacer, TableStyle
 
-REQUIRED_ORDER=("OVERALL ASSESSMENT","Use-Case Product Fit","Relevant Evidence","Applicability Mappings","Authoritative dSPACE Portfolio Sources")
+REQUIRED_ORDER=("OVERALL ASSESSMENT","Use-Case Product Fit","Relevant Evidence","COMPANY BACKGROUND EVIDENCE","Applicability Mappings","Authoritative dSPACE Portfolio Sources")
 
 
 def report_identity(company_name:str,moment:datetime|None=None)->dict:
@@ -42,6 +42,15 @@ def _validate(final:dict,relevant:dict,identity:dict)->None:
     if any(not re.fullmatch(r"SRC-\d{4,}",str(source_id)) for source_id in source_ids):
         raise ValueError("invalid relevant evidence source ID")
     if set(data.get("relevant_evidence_source_ids",[]))!=source_ids: raise ValueError("unknown relevant evidence source")
+    background=list(relevant.get("company_background_evidence",[]))
+    background_ids={item.get("source_id") for item in background}
+    if None in background_ids or len(background_ids)!=len(background): raise ValueError("company background evidence source IDs must be present and unique")
+    if source_ids & background_ids: raise ValueError("a source cannot be both Relevant Evidence and Company Background Evidence")
+    if set(data.get("company_background_evidence_source_ids",[]))!=background_ids: raise ValueError("unknown company background evidence source")
+    supporting_ids={source_id for item in final.get("overall_product_match",{}).get("use_case_scores",[])
+                    for source_id in item.get("supporting_source_ids",[])}
+    if supporting_ids != source_ids:
+        raise ValueError(f"Use-Case Product Fit and Relevant Evidence source sets differ: supporting={sorted(supporting_ids)}, relevant={sorted(source_ids)}")
     seen=set()
     for mapping in final.get("applicability_mappings",[]):
         if not mapping.get("dspace_commercial_name"): raise ValueError("positive mapping lacks validated dSPACE commercial name")
@@ -71,7 +80,7 @@ def _use_case_rows(final:dict)->list[tuple[str,str,int]]:
         if use_case_id in seen: continue
         seen.add(use_case_id)
         label=use_case_id.replace("_"," ").strip().title()
-        sources=", ".join(item.get("supporting_source_ids",[])[:3]) or "Not available"
+        sources=", ".join(item.get("supporting_source_ids",[])) or "Not available"
         rows.append((label,sources,int(item.get("use_case_score",0))))
     return rows
 
@@ -91,7 +100,7 @@ def render_reports(out:Path,slug:str,stamp:str,final:dict,relevant:dict,report_g
     use_cases=_use_case_rows(final)
     patent_coverage=final.get("search_coverage",{}).get("patents",{})
     coverage_note=patent_coverage.get("interpretation","")
-    lines=[f"# Sales Assessment: {final['company_name']}",f"Company domain: {company_domain}",f"Country: {company_country}","",f"Overall Product Match: **{final['overall_dspace_portfolio_applicability']}/100 - {rating_band}**",f"Deployment Readiness: **{readiness_label}**",generated_line,"","## OVERALL ASSESSMENT",assessment,"","## Use-Case Product Fit","","| USE CASES | Supporting Sources (max 3) | PRODUCT FIT |","| --- | --- | ---: |"]
+    lines=[f"# Sales Assessment: {final['company_name']}",f"Company domain: {company_domain}",f"Country: {company_country}","",f"Overall Product Match: **{final['overall_dspace_portfolio_applicability']}/100 - {rating_band}**",f"Deployment Readiness: **{readiness_label}**",generated_line,"","## OVERALL ASSESSMENT",assessment,"","## Use-Case Product Fit","","| USE CASES | Supporting Sources | PRODUCT FIT |","| --- | --- | ---: |"]
     for label,sources,score in use_cases:
         lines.append(f"| {label} | {sources} | {score}/100 |")
     if not use_cases: lines.append("| No scored use cases identified | None | 0/100 |")
@@ -99,6 +108,12 @@ def render_reports(out:Path,slug:str,stamp:str,final:dict,relevant:dict,report_g
     for item in relevant["relevant_evidence"]:
         display_description=_display_evidence_description(item["description"]).replace("|","/")
         lines.append(f"| {item['source_id']} | {display_description} | {item['canonical_url']} |")
+    if not relevant["relevant_evidence"]: lines.append("| None | No source supports a precise scored use case. | |")
+    lines.extend(["","## COMPANY BACKGROUND EVIDENCE","","| Source ID | Evidence | URL |","| --- | --- | --- |"])
+    for item in relevant.get("company_background_evidence",[]):
+        display_description=_display_evidence_description(item["description"]).replace("|","/")
+        lines.append(f"| {item['source_id']} | {display_description} | {item['canonical_url']} |")
+    if not relevant.get("company_background_evidence"): lines.append("| None | No unscored company-background evidence identified. | |")
     lines.extend(["","## Applicability Mappings","","| Use Case | Customer Evidence / Readiness | Potential NNC Capability |","| --- | --- | --- |"])
     for mapping in final["applicability_mappings"]:
         label=str(mapping.get("use_case_id","")).replace("_"," ").title()
@@ -136,7 +151,7 @@ def render_reports(out:Path,slug:str,stamp:str,final:dict,relevant:dict,report_g
         Spacer(1,2*mm),
         Paragraph("Use-Case Product Fit",styles["Heading2"]),
     ]
-    use_case_table_rows=[[Paragraph("<b>USE CASES</b>",body),Paragraph("<b>Supporting Sources (max 3)</b>",body),Paragraph("<b>PRODUCT FIT</b>",body)]]
+    use_case_table_rows=[[Paragraph("<b>USE CASES</b>",body),Paragraph("<b>Supporting Sources</b>",body),Paragraph("<b>PRODUCT FIT</b>",body)]]
     for label,sources,score in use_cases:
         use_case_table_rows.append([Paragraph(escape(label),body),Paragraph(escape(sources),small),Paragraph(f"{score}/100",number)])
     if not use_cases: use_case_table_rows.append([Paragraph("No scored use cases identified",body),Paragraph("None",small),Paragraph("0/100",number)])
@@ -153,7 +168,16 @@ def render_reports(out:Path,slug:str,stamp:str,final:dict,relevant:dict,report_g
     table=LongTable(rows,colWidths=[19*mm,90*mm,59*mm],repeatRows=1,splitByRow=1,hAlign="LEFT")
     commands=[("BACKGROUND",(0,0),(-1,0),colors.HexColor("#D9EAF7")),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#8AA4B8")),("VALIGN",(0,0),(-1,-1),"TOP"),("ALIGN",(0,0),(0,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),4),("RIGHTPADDING",(0,0),(-1,-1),4),("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4)]
     for row in range(2,len(rows),2): commands.append(("BACKGROUND",(0,row),(-1,row),colors.HexColor("#F6F9FB")))
-    table.setStyle(TableStyle(commands)); story.extend([table,Spacer(1,3*mm),Paragraph("Applicability Mappings",styles["Heading2"])])
+    table.setStyle(TableStyle(commands)); story.extend([table,Spacer(1,3*mm),Paragraph("COMPANY BACKGROUND EVIDENCE",styles["Heading2"])])
+    background_rows=[[Paragraph("<b>Source ID</b>",number),Paragraph("<b>Evidence</b>",body),Paragraph("<b>URL</b>",body)]]
+    for item in relevant.get("company_background_evidence",[]):
+        url=item["canonical_url"]; href=escape(url).replace('"','&quot;')
+        background_rows.append([Paragraph(escape(str(item["source_id"])),number),Paragraph(escape(_display_evidence_description(item["description"])),body),Paragraph(f'<link href="{href}" color="blue">{escape(url)}</link>',small)])
+    if len(background_rows)==1: background_rows.append([Paragraph("None",number),Paragraph("No unscored company-background evidence identified.",body),Paragraph("",small)])
+    background_table=LongTable(background_rows,colWidths=[19*mm,90*mm,59*mm],repeatRows=1,splitByRow=1,hAlign="LEFT")
+    background_commands=[("BACKGROUND",(0,0),(-1,0),colors.HexColor("#D9EAF7")),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#8AA4B8")),("VALIGN",(0,0),(-1,-1),"TOP"),("ALIGN",(0,0),(0,-1),"CENTER"),("LEFTPADDING",(0,0),(-1,-1),4),("RIGHTPADDING",(0,0),(-1,-1),4),("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4)]
+    for row in range(2,len(background_rows),2): background_commands.append(("BACKGROUND",(0,row),(-1,row),colors.HexColor("#F6F9FB")))
+    background_table.setStyle(TableStyle(background_commands)); story.extend([background_table,Spacer(1,3*mm),Paragraph("Applicability Mappings",styles["Heading2"])])
     mapping_rows=[[Paragraph("<b>Use Case</b>",body),Paragraph("<b>Customer Evidence / Readiness</b>",body),Paragraph("<b>Potential NNC Capability</b>",body)]]
     for mapping in final["applicability_mappings"]:
         mapping_rows.append([Paragraph(escape(str(mapping.get("use_case_id","")).replace("_"," ").title()),body),

@@ -19,7 +19,7 @@ from bd_agent_neural_net_coder.report_generator import render_reports, report_id
 def sample_final():
     mapping={"mapping_id":"MAP-0001","mapping_chain":["hvdc_converter_system","controller_hil","hvdc_real_time_simulation","electrical_power_systems_simulation_package_epss"],"mapping_display":"hvdc_converter_system -> controller_hil -> hvdc_real_time_simulation -> electrical_power_systems_simulation_package_epss","target_company_entity_id":"hvdc_converter_system","engineering_need_id":"controller_hil","dspace_capability_id":"hvdc_real_time_simulation","dspace_portfolio_item_id":"electrical_power_systems_simulation_package_epss","dspace_commercial_name":"Electrical Power Systems Simulation Package (EPSS)","owner":"dSPACE GmbH","supplier":"dSPACE GmbH","dspace_product_aliases":["EPSS","Electrical Power Systems Simulation Package"],"dspace_offering_type":"product","supporting_company_evidence_ids":["EVD-00001"],"dspace_source_references":[{"source_filename":"epss.pdf","page_start":2,"page_end":2,"section":"HVDC","chunk_id":"chunk-1"}]}
     moment=datetime(2026,7,27,5,40,39,tzinfo=timezone.utc)
-    return {"run_id":"siemens-energy-20260726T094140Z","company_name":"Siemens Energy","target_company":{"name":"Siemens Energy","official_domain":"siemens-energy.com","country":"Germany","role":"prospective_user_of_applicable_dspace_offerings"},"portfolio_supplier":{"name":"dSPACE GmbH","role":"owner_and_supplier_of_all_dspace_portfolio_items"},"overall_dspace_portfolio_applicability":96,"overall_product_match":{"band":"strong"},"semantic_scopes":{"dspace_portfolio":[{"dspace_portfolio_item_id":"electrical_power_systems_simulation_package_epss","dspace_commercial_name":"Electrical Power Systems Simulation Package (EPSS)","owner":"dSPACE GmbH","supplier":"dSPACE GmbH","aliases":["EPSS","Electrical Power Systems Simulation Package"],"dspace_applicability_score":100,"hard_rule_passed":True}]},"applicability_mappings":[mapping],"report_data":{"relevant_evidence_source_ids":["SRC-0001"],"relevant_evidence_count":1,"applicability_mapping_ids":["MAP-0001"],"applicability_mapping_count":1,**report_identity("Siemens Energy",moment)}}
+    return {"run_id":"siemens-energy-20260726T094140Z","company_name":"Siemens Energy","target_company":{"name":"Siemens Energy","official_domain":"siemens-energy.com","country":"Germany","role":"prospective_user_of_applicable_dspace_offerings"},"portfolio_supplier":{"name":"dSPACE GmbH","role":"owner_and_supplier_of_all_dspace_portfolio_items"},"overall_dspace_portfolio_applicability":96,"overall_product_match":{"band":"strong","use_case_scores":[{"use_case_id":"hvdc_converter_control","use_case_score":96,"supporting_source_ids":["SRC-0001"]}]},"semantic_scopes":{"dspace_portfolio":[{"dspace_portfolio_item_id":"electrical_power_systems_simulation_package_epss","dspace_commercial_name":"Electrical Power Systems Simulation Package (EPSS)","owner":"dSPACE GmbH","supplier":"dSPACE GmbH","aliases":["EPSS","Electrical Power Systems Simulation Package"],"dspace_applicability_score":100,"hard_rule_passed":True}]},"applicability_mappings":[mapping],"report_data":{"relevant_evidence_source_ids":["SRC-0001"],"relevant_evidence_count":1,"applicability_mapping_ids":["MAP-0001"],"applicability_mapping_count":1,**report_identity("Siemens Energy",moment)}}
 
 
 def test_runtime_manifest_uses_v110_design_metadata():
@@ -138,8 +138,21 @@ def test_pdf_has_readable_name_mappings_before_evidence_and_clickable_url(tmp_pa
     assert "| Source ID | Evidence | URL |" in markdown
     assert "| SRC-0001 |" in markdown
     assert "| 1 |" not in markdown
-    assert text.index("Use-Case Product Fit")<text.index("Relevant Evidence")<text.index("Applicability Mappings")<text.index("Authoritative dSPACE Portfolio Sources")
+    assert text.index("Use-Case Product Fit")<text.index("Relevant Evidence")<text.index("COMPANY BACKGROUND EVIDENCE")<text.index("Applicability Mappings")<text.index("Authoritative dSPACE Portfolio Sources")
     assert any("/URI" in str(annotation.get_object().get("/A",{})) for page in reader.pages for annotation in page.get("/Annots",[]))
+
+
+def test_unscored_source_is_reported_only_as_company_background_evidence(tmp_path):
+    final=sample_final(); final["narrative"]={"executive_summary":"Deterministic narrative."}
+    final["report_data"].update({"company_background_evidence_source_ids":["SRC-0007"],"company_background_evidence_count":1})
+    relevant={"relevant_evidence":[{"display_number":1,"source_id":"SRC-0001","description":"Scored use-case evidence.","canonical_url":"https://example.com/use-case"}],
+              "company_background_evidence":[{"display_number":1,"source_id":"SRC-0007","description":"General company neural-network context.","canonical_url":"https://example.com/background"}]}
+    pdf=render_reports(tmp_path,"siemens-energy","20260726T094140Z",final,relevant,datetime(2026,7,27,5,40,39,tzinfo=timezone.utc))
+    text="\n".join(page.extract_text() or "" for page in PdfReader(pdf).pages)
+    relevant_block=text.split("Relevant Evidence",1)[1].split("COMPANY BACKGROUND EVIDENCE",1)[0]
+    background_block=text.split("COMPANY BACKGROUND EVIDENCE",1)[1].split("Applicability Mappings",1)[0]
+    assert "SRC-0007" not in relevant_block
+    assert "SRC-0007" in background_block
 
 
 def test_pdf_shortens_evidence_display_without_mutating_json(tmp_path):
@@ -157,6 +170,7 @@ def test_multi_page_evidence_table_repeats_headers(tmp_path):
     final=sample_final(); final["narrative"]={"executive_summary":"Deterministic narrative."}
     relevant={"relevant_evidence":[{"display_number":i+1,"source_id":f"SRC-{i+1:04d}","description":f"Evidence source {i}: "+"converter control and grid validation "*4,"canonical_url":f"https://example.com/technical/publication/{i}/long-document-name.pdf"} for i in range(55)]}
     final["report_data"]["relevant_evidence_source_ids"]=[x["source_id"] for x in relevant["relevant_evidence"]]
+    final["overall_product_match"]["use_case_scores"][0]["supporting_source_ids"]=list(final["report_data"]["relevant_evidence_source_ids"])
     pdf=render_reports(tmp_path,"siemens-energy","20260726T094140Z",final,relevant,datetime(2026,7,27,5,40,39,tzinfo=timezone.utc))
     reader=PdfReader(pdf); page_texts=[page.extract_text() or "" for page in reader.pages]
     assert len(reader.pages)>1

@@ -191,3 +191,29 @@ cycles are conservatively rejected when more than one fresh manifest appears.
   cancellation, audit replay and provider fallback/quota behavior. Live model
   numerical equivalence and elapsed-time gains require a later authorized run;
   no live BDA scan is performed while endpoint-security investigation is open.
+# 2026-08-31 — Compact narrative action contract
+
+- Simplified `recommended_next_actions` to an array of non-empty action strings.
+- Action priority is deterministic from array order: highest priority first.
+- Updated prompt, schema, normalization, fallback output, and validation together.
+
+# 2026-08-31 — Company Background Evidence report partition
+
+- Relevant Evidence now contains only sources linked to a precise scored use case or an explicit applicability mapping.
+- Accepted opportunity sources without that link are preserved under COMPANY BACKGROUND EVIDENCE immediately after Relevant Evidence.
+- Background sources remain approved-source counts, but cannot affect Product Fit, mappings, or the LLM context.
+
+# 2026-08-31 — Bidirectional use-case/evidence source invariant
+
+- Edge adjacency alone now scores zero when both neural-application and deployment-workflow points are zero; explicit estimator-substitution candidates remain eligible through their neural-opportunity classification.
+- Company aggregation consumes only sources already qualified for Relevant Evidence.
+- Supporting Sources and Relevant Evidence must contain exactly the same source-ID set; report generation fails on either-direction mismatch.
+
+# 2026-09-04 — Configuration and specification reconciliation
+
+- Audited the seven proposals in `doc_mismatches_and_modifications_report.md` against the production code.
+- Replaced the legacy power-electronics layer inventory with the eight layer values actually used by the Tiny/Edge-AI company taxonomy and corrected its schema cardinality.
+- Marked the unreferenced v1.5 use-case taxonomy and domain-local search profiles as deprecated; runtime behavior remains in `shared_use_case_taxonomy.yaml` and `config/search_providers.yaml`.
+- Mirrored the Python scoring level dictionaries and edge-only score exclusion in `scoring_rules.yaml` without moving runtime authority out of `nnc_scoring.py`.
+- Documented exact relevance-band identifiers, declarative-only YAML roles, and the rendered report-order distinction.
+- No search, scoring, attribution, evidence or report runtime behavior was changed by this documentation/configuration reconciliation.

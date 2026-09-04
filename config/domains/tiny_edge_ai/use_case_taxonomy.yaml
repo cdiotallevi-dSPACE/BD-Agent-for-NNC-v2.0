@@ -1,7 +1,10 @@
+# DEPRECATED / NOT RUNTIME-LOADED. Retained as a historical configuration
+# artifact. Active discovery, matching and scoring use
+# shared_use_case_taxonomy.yaml (config_version 1.12.0).
 config_id: tiny_edge_ai_use_case_taxonomy
 config_version: 1.5.0
 schema_version: 1.0.0
-status: active
+status: deprecated
 use_cases:
   virtual_sensor: [virtual sensor, soft sensor, learned observer, neural state estimator]
   condition_monitoring: [predictive maintenance, anomaly detection, remaining useful life]

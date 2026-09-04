@@ -58,3 +58,32 @@ def test_relevance_boundaries():
         "medium_nnc_relevance", "medium_nnc_relevance", "high_nnc_relevance",
         "high_nnc_relevance", "maximum_nnc_potential_fit", "maximum_nnc_potential_fit",
     ]
+
+
+def test_edge_adjacency_alone_cannot_create_product_fit():
+    analysis={"patent_neural_evidence_strength":"absent","use_case_classes":["battery_health_and_state_estimation"],
+              "algorithm_roles":{"estimator":[],"learning_or_adaptation_agent":[]},"onboard_context":"confirmed"}
+    result=score_patent_use_case(analysis,"The controller performs charging control for a battery system.")
+    assert result["company_neural_application"]["points"]==0
+    assert result["deployment_workflow_fit"]["points"]==0
+    assert result["edge_deployment_intent"]["points"]==5
+    assert result["score_eligible"] is False
+    assert result["use_case_score"]==0
+    assert result["score_exclusion_reason"]=="edge_context_without_neural_or_workflow_signal"
+
+
+def test_explicit_sensorless_estimator_remains_low_score_neural_substitution_candidate():
+    analysis={"patent_neural_evidence_strength":"absent","use_case_classes":["indirect_physical_state_and_virtual_sensing"],
+              "algorithm_roles":{"estimator":[],"learning_or_adaptation_agent":[]},"onboard_context":"confirmed"}
+    result=score_patent_use_case(analysis,"A controller estimates rotor temperature from rotor resistance without using temperature sensors.")
+    assert result["company_neural_application"]["classification"]=="indirect_physical_estimator_neural_candidate"
+    assert result["company_neural_application"]["points"]==15
+    assert result["score_eligible"] is True
+    assert result["use_case_score"]==20
+
+
+def test_contextual_company_evidence_is_not_aggregated_even_with_preliminary_score():
+    evidence=[{"evidence_id":"E1","source_id":"SRC-0090","use_case_classes":["battery_health_and_state_estimation"],
+               "relevance_class":"contextual_company_evidence","relevant_evidence_eligible":False,
+               "nnc_use_case_scoring":{"use_case_score":5,"score_eligible":True}}]
+    assert aggregate_company_scores(evidence)["use_cases"]==[]

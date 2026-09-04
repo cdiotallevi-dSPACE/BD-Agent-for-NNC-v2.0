@@ -15,15 +15,8 @@
     "recommended_next_actions": {
       "type": "array",
       "maxItems": 4,
-      "items": {
-        "type": "object",
-        "required": ["priority", "action"],
-        "properties": {
-          "priority": {"enum": ["high", "medium", "low"]},
-          "action": {"type": "string", "minLength": 1}
-        },
-        "additionalProperties": false
-      }
+      "description": "Non-empty action strings ordered from highest to lowest priority.",
+      "items": {"type": "string", "minLength": 1}
     }
   },
   "additionalProperties": false
