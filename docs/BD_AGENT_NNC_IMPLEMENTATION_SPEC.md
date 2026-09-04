@@ -134,6 +134,21 @@ thresholds and provider behavior are also encoded in Python. In particular,
 `generate_queries()`, `nnc_scoring.py` and `portfolio_index.retrieve()` must be
 consulted before claiming a YAML-only change affects runtime behavior.
 
+The runtime/configuration status of the domain files is:
+
+| File | Current implementation status |
+| --- | --- |
+| `company_domain_taxonomy.yaml` | Runtime-loaded target-company semantic terms. Its eight current `domain_layer` values are mirrored by `company_domain_layers.yaml`. |
+| `shared_use_case_taxonomy.yaml` | Runtime-loaded, version 1.12.0; authoritative shared vocabulary for web, PDF/professional-publication and patent discovery, local matching and use-case classification. |
+| `use_case_taxonomy.yaml` | Deprecated historical v1.5.0 artifact; validated as configuration inventory but not loaded by the execution path. |
+| `search_profiles.yaml` | Deprecated historical artifact; not runtime-loaded. Active `standard` and `fast_iteration` profiles are in `config/search_providers.yaml`. |
+| `scoring_rules.yaml` | Declarative mirror of score ceilings, level dictionaries, absence rules and aggregation. Runtime classification and point selection are implemented in `nnc_scoring.py`. |
+| `exclusions.yaml`, `company_identity_rules.yaml`, `company_alias_policy.yaml`, `query_templates.yaml` | Declarative references validated as configuration inventory. Runtime false-positive rules, attribution/alias logic and query generation are implemented in `evidence_context.py`, `company_attribution.py` and `search_orchestrator.py`. |
+
+Consequently, editing a deprecated or declarative-only YAML file does not alter
+runtime behavior. A behavioral change must update the Python implementation and
+its tests, and then keep the declarative mirror synchronized.
+
 `shared_use_case_taxonomy.py` supplies shared engineering vocabulary to web,
 PDF/publication and patent discovery and local matching. Core discovery terms
 are bounded by profile; extended terms support local matching. Company names,
@@ -363,11 +378,12 @@ that meets its checks without requiring every item to be used by a published
 mapping. Thus the old universal `used_by_published_mapping` requirement is not
 an accurate description of the current publication predicate.
 
-Not every Relevant Evidence record has a numeric score. Records with
-`nnc_use_case_scoring` expose their use-case score; unscored opportunity records
-can contribute zero and legacy mapping records can expose `eligible`. Relevant
-Evidence is source-grouped; evidence records, sources, use cases and mappings
-are different counts.
+Relevant Evidence is limited to sources linked to a precise scored use case or
+an explicit applicability mapping. Accepted opportunity records without such a
+link are preserved separately as Company Background Evidence; they contribute
+zero, cannot create a mapping, and are excluded from the local-LLM context.
+Both collections are source-grouped; evidence records, sources, use cases and
+mappings are different counts.
 
 ## 9. Product-fit scoring and mappings
 
@@ -402,8 +418,18 @@ threshold without being represented as confirmed neural adoption.
 `aggregate_company_scores()` groups scored accepted evidence by use-case class,
 ignores source-ID-like case names, favors specific classes over the generic
 indirect-sensing umbrella, and assigns a multi-class item to its alphabetically
-first remaining class. It retains the best score per group and up to three
-ranked supporting source IDs.
+first remaining class. It retains the best score per group and every qualified
+supporting source ID. Aggregation is performed only after Relevant Evidence
+qualification and excludes contextual/background evidence.
+
+Edge/application adjacency cannot create Product Fit by itself. When both the
+neural-application component and deployment-workflow component are zero, the
+use-case score is forced to zero even if an edge-adjacency branch produced
+points. The deterministic reason is
+`edge_context_without_neural_or_workflow_signal`. An explicit indirect or
+sensorless physical estimator remains eligible for its separately classified
+neural-substitution opportunity points; this exception is not generic edge
+adjacency.
 
 ```text
 base = highest distinct use-case score
@@ -412,9 +438,16 @@ breadth = 10 if at least two use cases score >=40, else 0
 company score = min(100, base + breadth)
 ```
 
-Bands are >=85 maximum potential fit, >=65 high, >=40 medium, >=20 emerging ML,
-otherwise low. This measures potential fit, not a probability of purchase or
-proof of NNC/ONNX adoption. Readiness and commercial-toolchain status are reported
+The exact relevance-band identifiers and their display meaning are:
+
+- >=85: `maximum_nnc_potential_fit` (maximum potential fit);
+- >=65: `high_nnc_relevance` (high);
+- >=40: `medium_nnc_relevance` (medium);
+- >=20: `emerging_ml_opportunity` (emerging ML opportunity);
+- <20: `low_relevance` (low).
+
+These bands measure potential fit, not a probability of purchase or proof of
+NNC/ONNX adoption. Readiness and commercial-toolchain status are reported
 separately; edge/workflow points still form part of technical fit.
 
 If no scored use cases exist, `pipeline.py` retains the legacy
@@ -609,17 +642,30 @@ the append-only run index. Cycle files include `cycle_snapshot.json`,
 The report section order is:
 
 1. OVERALL ASSESSMENT.
-2. Use-Case Product Fit: human-readable use case, up to three source IDs, score.
+2. Use-Case Product Fit: human-readable use case, every qualified supporting source ID, score.
 3. Search Coverage, including patent-search gaps.
 4. Relevant Evidence: internal Source ID, evidence description, stable URL.
-5. Applicability Mappings: use case, customer evidence/readiness, potential NNC capability.
-6. Authoritative dSPACE Portfolio Sources.
+5. COMPANY BACKGROUND EVIDENCE: accepted sources without a precise scored use-case link.
+6. Applicability Mappings: use case, customer evidence/readiness, potential NNC capability.
+7. Authoritative dSPACE Portfolio Sources.
+
+`render_reports()` is authoritative for this seven-section output. The internal
+`REQUIRED_ORDER` tuple is retained as a six-title primary-section marker and
+does not include the separately inserted Search Coverage section; it is not used
+to generate or validate the rendered sequence.
 
 Mapping display separates possible NNC capability from proven customer ONNX or
 generated-code adoption. Source IDs are not use-case names. Relevant Evidence
 descriptions use titles, patent publication identifiers and sentence-aware
 abstract/passage summaries, preserving a complete long statement rather than
 forcing a mid-sentence ellipsis.
+
+Report generation enforces a bidirectional source invariant: the union of all
+Use-Case Product Fit supporting-source IDs must equal the Relevant Evidence
+source-ID set exactly. A source missing in either direction is a fatal report
+contract error. Sources that are accepted and company-attributed but do not
+support a qualified positive use-case score are published only in COMPANY
+BACKGROUND EVIDENCE.
 
 Patent report links prefer stable USPTO application-detail URLs when an application
 number exists, otherwise Google publication URLs. Signed retrieval URLs remain
