@@ -135,6 +135,15 @@ remain correctly blocked until approved NNC documents are placed in
   controller ANN calibration. Fixed trained inference, online updating,
   architecture size, sensor elimination and commercial recency are persisted
   independently. Older/ICE context never reduces technical Product Fit.
+# v1.15 exclude generic software-defined-vehicle discovery
+
+- Removed the generic `software_defined_vehicle` family and its broad
+  `software-defined vehicle` application phrase from the active shared taxonomy.
+- Kept specific automotive application families and added regression assertions
+  that generic SDV wording does not produce an active family match or web query.
+- Bumped `shared_use_case_taxonomy.yaml` to version 1.15.0 and synchronized the
+  implementation specification.
+
 # v1.12 shared public-OEM application discovery
 
 - Added public OEM application vocabulary for battery estimation, motor thermal management,

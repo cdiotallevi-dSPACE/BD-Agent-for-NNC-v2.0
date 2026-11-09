@@ -139,7 +139,7 @@ The runtime/configuration status of the domain files is:
 | File | Current implementation status |
 | --- | --- |
 | `company_domain_taxonomy.yaml` | Runtime-loaded target-company semantic terms. Its eight current `domain_layer` values are mirrored by `company_domain_layers.yaml`. |
-| `shared_use_case_taxonomy.yaml` | Runtime-loaded, version 1.12.0; authoritative shared vocabulary for web, PDF/professional-publication and patent discovery, local matching and use-case classification. |
+| `shared_use_case_taxonomy.yaml` | Runtime-loaded, version 1.15.0; authoritative shared vocabulary for web, PDF/professional-publication and patent discovery, local matching and use-case classification. |
 | `use_case_taxonomy.yaml` | Deprecated historical v1.5.0 artifact; validated as configuration inventory but not loaded by the execution path. |
 | `search_profiles.yaml` | Deprecated historical artifact; not runtime-loaded. Active `standard` and `fast_iteration` profiles are in `config/search_providers.yaml`. |
 | `scoring_rules.yaml` | Declarative mirror of score ceilings, level dictionaries, absence rules and aggregation. Runtime classification and point selection are implemented in `nnc_scoring.py`. |
@@ -154,6 +154,15 @@ PDF/publication and patent discovery and local matching. Core discovery terms
 are bounded by profile; extended terms support local matching. Company names,
 domains and identities are substituted at runtime. Matching an application term
 raises discovery priority; it is not automatic evidence approval.
+
+The active shared taxonomy retains specific automotive families for electric-
+machine thermal-state estimation, combustion and powertrain neural control,
+autonomous-driving neural perception, battery power capability, learned vehicle
+dynamics, battery virtual measurement and predictive control, indirect physical-
+state sensing, condition monitoring, perception and detection, and occupant/
+driver sensing. It excludes the generic software-defined-vehicle family and its
+broad discovery phrase so that platform-level SDV evidence does not independently
+trigger Tiny-Edge-AI discovery.
 
 Optional `data/company_source_profiles/<slug>.yaml` files can supply domains,
 aliases, publication hubs, industry and seeds. They cannot silently supply

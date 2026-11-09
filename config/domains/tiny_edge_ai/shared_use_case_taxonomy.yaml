@@ -1,5 +1,5 @@
 config_id: tiny_edge_ai_shared_use_case_taxonomy
-config_version: 1.12.0
+config_version: 1.15.0
 schema_version: 1.0.0
 status: active
 
@@ -27,7 +27,6 @@ public_oem_application_vocabulary:
   - vehicle perception
   - driver monitoring
   - predictive diagnostics
-  - software-defined vehicle
   - intelligent battery management
   - sensorless estimation
   - AI-enabled vehicle control
@@ -111,12 +110,4 @@ use_case_families:
     core_discovery_terms: [driver monitoring, occupant monitoring, cabin sensing]
     extended_matching_terms: [driver state monitoring, driver distraction, driver drowsiness, occupant detection, occupant classification, driver state detection, in-cabin monitoring, occupancy detection]
     context_terms: [camera, vehicle, controller, real-time]
-    patent_cpc_codes: []
-
-  software_defined_vehicle:
-    display_name: Software-Defined Vehicle and Centralized Edge Computing
-    industries: [automotive, transportation]
-    core_discovery_terms: [software-defined vehicle, centralized vehicle computing, onboard AI]
-    extended_matching_terms: [zonal controller, vehicle computer, edge computing vehicle, centralized compute platform, AI-enabled vehicle control]
-    context_terms: [vehicle controller, domain controller, zonal architecture, embedded computing, real-time]
     patent_cpc_codes: []

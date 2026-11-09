@@ -81,12 +81,16 @@ def test_query_templates_are_generic_cross_channel_and_cover_every_assignee():
 def test_public_oem_application_vocabulary_is_complete_and_locally_matchable():
     required = {
         "battery state estimation", "motor thermal management", "vehicle perception",
-        "driver monitoring", "predictive diagnostics", "software-defined vehicle",
+        "driver monitoring", "predictive diagnostics",
         "intelligent battery management", "sensorless estimation", "AI-enabled vehicle control",
     }
     assert required.issubset(set(all_matching_terms()))
     matches = match_use_case_families("An AI-enabled vehicle control system uses sensorless estimation.")
     assert "indirect_physical_state_and_virtual_sensing" in matches
+    assert "software_defined_vehicle" not in matches
+    assert not match_use_case_families(
+        "A software-defined vehicle uses centralized vehicle computing and onboard AI."
+    )
 
 
 def test_application_only_queries_do_not_require_ai_vocabulary():
@@ -99,7 +103,7 @@ def test_application_only_queries_do_not_require_ai_vocabulary():
     rendered = {query.rendered_query for query in queries}
     assert 'site:example.com "battery state estimation"' in rendered
     assert 'site:example.com "driver monitoring"' in rendered
-    assert 'site:example.com "software-defined vehicle"' in rendered
+    assert 'site:example.com "software-defined vehicle"' not in rendered
 
 
 def test_full_text_assessment_and_scoring_use_the_same_family_vocabulary():
